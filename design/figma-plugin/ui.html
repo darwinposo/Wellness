@@ -2,43 +2,68 @@
 <html>
 <head>
 <style>
-  body { font-family: Inter, sans-serif; padding: 20px; margin: 0; background: #FAF8F5; }
-  h2 { font-size: 16px; font-weight: 700; color: #1A1A22; margin-bottom: 8px; }
-  p { font-size: 13px; color: #6E6E7E; margin-bottom: 20px; line-height: 1.5; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Inter, sans-serif; padding: 20px; background: #FAF8F5; }
+  h2 { font-size: 15px; font-weight: 700; color: #1A1A22; margin-bottom: 6px; }
+  p { font-size: 12px; color: #6E6E7E; margin-bottom: 16px; line-height: 1.5; }
   button {
-    width: 100%; padding: 14px; background: #D4724A; color: #fff;
-    border: none; border-radius: 12px; font-size: 15px; font-weight: 700;
-    cursor: pointer; font-family: inherit;
+    width: 100%; padding: 12px; background: #D4724A; color: #fff;
+    border: none; border-radius: 10px; font-size: 14px; font-weight: 700;
+    cursor: pointer; font-family: inherit; transition: background .15s;
   }
-  button:hover { background: #C4623A; }
-  #status { margin-top: 16px; font-size: 13px; color: #4A7D8C; display: none; }
+  button:hover:not(:disabled) { background: #C4623A; }
+  button:disabled { opacity: 0.6; cursor: default; }
+  #log {
+    margin-top: 14px; font-size: 11px; color: #4A7D8C;
+    max-height: 160px; overflow-y: auto; display: none;
+    background: #fff; border-radius: 8px; padding: 10px;
+    border: 1px solid #E2E2E8; line-height: 1.8;
+  }
+  #log.error { color: #D94F4F; }
+  .warn { color: #D4724A; }
+  .ok { color: #3D9A5C; }
 </style>
 </head>
 <body>
   <h2>Reflect Design System</h2>
-  <p>Creates all Variables (Primitives, Semantic Light/Dark, Spacing), 5 text styles, and the Foundations page automatically.</p>
+  <p>Creates Variables (Primitives, Semantic, Spacing), 5 text styles, and a Foundations page. Takes ~5 seconds.</p>
   <button id="run">Set Up Design System</button>
-  <div id="status">⏳ Setting up… this takes a few seconds.</div>
+  <div id="log"></div>
 
   <script>
-    document.getElementById('run').addEventListener('click', () => {
-      document.getElementById('status').style.display = 'block';
-      document.getElementById('run').disabled = true;
-      document.getElementById('run').textContent = 'Working…';
+    const btn = document.getElementById('run');
+    const logEl = document.getElementById('log');
+
+    btn.addEventListener('click', () => {
+      logEl.style.display = 'block';
+      logEl.className = '';
+      logEl.innerHTML = '⏳ Running…';
+      btn.disabled = true;
+      btn.textContent = 'Working…';
       parent.postMessage({ pluginMessage: { type: 'run' } }, '*');
     });
 
     window.onmessage = (event) => {
       const msg = event.data.pluginMessage;
-      if (msg && msg.type === 'done') {
-        document.getElementById('status').textContent = '✅ ' + msg.message;
-        document.getElementById('run').textContent = 'Done!';
+      if (!msg) return;
+
+      if (msg.type === 'done') {
+        btn.textContent = '✅ Done!';
+        logEl.innerHTML = (msg.log || [])
+          .map(l => {
+            if (l.startsWith('✓')) return `<div class="ok">${l}</div>`;
+            if (l.startsWith('⚠')) return `<div class="warn">${l}</div>`;
+            if (l.startsWith('✅')) return `<div class="ok"><strong>${l}</strong></div>`;
+            return `<div>${l}</div>`;
+          }).join('') + `<div class="ok"><strong>${msg.message}</strong></div>`;
       }
-      if (msg && msg.type === 'error') {
-        document.getElementById('status').textContent = '❌ ' + msg.message;
-        document.getElementById('status').style.color = '#D94F4F';
-        document.getElementById('run').disabled = false;
-        document.getElementById('run').textContent = 'Retry';
+
+      if (msg.type === 'error') {
+        btn.textContent = 'Retry';
+        btn.disabled = false;
+        logEl.className = 'error';
+        logEl.innerHTML = `<strong>Error:</strong> ${msg.message}<br><br>` +
+          (msg.log || []).map(l => `<div>${l}</div>`).join('');
       }
     };
   </script>
