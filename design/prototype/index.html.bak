@@ -1,0 +1,2039 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reflect — App Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Lora:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-primary: #FAF8F5;
+    --surface: #FFFFFF;
+    --brand-warm: #D4724A;
+    --brand-warm-light: #F0E8E2;
+    --brand-calm: #4A7D8C;
+    --brand-calm-light: #E2EDF0;
+    --mood-great: #6BAE8C;
+    --mood-good: #A8C97A;
+    --mood-okay: #E8C84A;
+    --mood-bad: #E89A5A;
+    --mood-terrible: #D46A6A;
+    --text-primary: #1A1A2E;
+    --text-muted: #8A8A9A;
+    --text-light: #B8B8C8;
+    --border: #EFEFEF;
+    --shadow-card: 0 4px 16px rgba(0,0,0,0.10);
+    --shadow-tab: 0 -8px 32px rgba(0,0,0,0.12);
+    --radius-card: 16px;
+    --radius-pill: 50px;
+    --font-main: 'Plus Jakarta Sans', sans-serif;
+    --font-journal: 'Lora', serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    background: #1A1A2E;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    font-family: var(--font-main);
+    overflow: auto;
+    padding: 40px 0 80px;
+  }
+
+  /* PHONE FRAME */
+  .phone {
+    width: 390px;
+    height: 844px;
+    background: var(--bg-primary);
+    border-radius: 48px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 40px 80px rgba(0,0,0,0.6), 0 0 0 2px #2A2A3E;
+    flex-shrink: 0;
+  }
+
+  .phone-notch {
+    position: absolute;
+    top: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 126px; height: 34px;
+    background: #0A0A0A;
+    border-radius: 0 0 20px 20px;
+    z-index: 100;
+  }
+
+  .home-indicator {
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 134px;
+    height: 5px;
+    background: var(--text-primary);
+    opacity: 0.18;
+    border-radius: 50px;
+    z-index: 60;
+  }
+
+  .screen {
+    position: absolute;
+    inset: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    display: none;
+    flex-direction: column;
+    scrollbar-width: none;
+  }
+  .screen::-webkit-scrollbar { display: none; }
+  .screen.active { display: flex; }
+
+  /* STATUS BAR */
+  .status-bar {
+    padding: 54px 28px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-primary);
+    flex-shrink: 0;
+  }
+  .status-bar.light {
+    color: #FFFFFF;
+  }
+
+  /* TAB BAR */
+  .tab-bar {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    padding: 12px 24px 28px;
+    background: rgba(250,248,245,0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-top: 1px solid rgba(0,0,0,0.06);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    z-index: 50;
+  }
+
+  .tab-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    padding: 8px 14px;
+    border-radius: var(--radius-pill);
+  }
+
+  .tab-item.active {
+    background: var(--text-primary);
+    flex-direction: row;
+    gap: 8px;
+  }
+
+  .tab-icon { font-size: 20px; line-height: 1; }
+  .tab-label { font-size: 11px; font-weight: 600; color: var(--text-muted); }
+  .tab-item.active .tab-label { color: #FFFFFF; font-size: 13px; }
+
+  /* SHARED COMPONENTS */
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 24px;
+    margin-bottom: 16px;
+  }
+  .section-title { font-size: 18px; font-weight: 700; color: var(--text-primary); }
+  .section-link { font-size: 13px; font-weight: 600; color: var(--brand-warm); }
+
+  .back-btn {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    background: var(--surface);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    box-shadow: var(--shadow-card);
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .primary-btn {
+    background: var(--brand-warm);
+    color: #FFFFFF;
+    border: none;
+    border-radius: var(--radius-pill);
+    padding: 18px;
+    font-size: 18px;
+    font-weight: 700;
+    font-family: var(--font-main);
+    width: 100%;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+  .primary-btn:active { transform: scale(0.98); opacity: 0.9; }
+  .primary-btn.dark { background: var(--text-primary); }
+
+  .ghost-btn {
+    background: transparent;
+    color: var(--text-muted);
+    border: none;
+    border-radius: var(--radius-pill);
+    padding: 14px;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: var(--font-main);
+    width: 100%;
+    cursor: pointer;
+    text-align: center;
+  }
+
+  /* TYPING INDICATOR */
+  .typing-indicator {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 14px 16px;
+    background: var(--surface);
+    border-radius: 20px;
+    border-bottom-left-radius: 6px;
+    width: fit-content;
+    box-shadow: var(--shadow-card);
+  }
+  .typing-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--text-light);
+    animation: typingPulse 1.4s ease-in-out infinite;
+  }
+  .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+  .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes typingPulse {
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+    30% { transform: translateY(-6px); opacity: 1; }
+  }
+
+  /* CHAT BUBBLES */
+  .chat-bubble {
+    max-width: 80%;
+    border-radius: 20px;
+    padding: 14px 16px;
+    line-height: 1.6;
+    font-size: 15px;
+  }
+  .chat-bubble.ai {
+    background: var(--surface);
+    color: var(--text-primary);
+    border-bottom-left-radius: 6px;
+    align-self: flex-start;
+    box-shadow: var(--shadow-card);
+    font-family: var(--font-main);
+  }
+  .chat-bubble.user {
+    background: var(--text-primary);
+    color: #FFFFFF;
+    border-bottom-right-radius: 6px;
+    align-self: flex-end;
+    font-family: var(--font-journal);
+    font-style: italic;
+  }
+
+  /* ========================
+     SCREEN: WELCOME
+  ======================== */
+  #screen-welcome {
+    background: linear-gradient(160deg, #1A1A2E 0%, #2D1F3D 100%);
+    padding: 60px 24px 40px;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+  .welcome-emoji { font-size: 60px; margin-bottom: 12px; }
+  .welcome-wordmark { font-size: 42px; font-weight: 700; color: #FFFFFF; margin-bottom: 8px; }
+  .welcome-tagline { font-size: 16px; color: rgba(255,255,255,0.8); margin-bottom: 32px; }
+  .welcome-illustration {
+    width: 200px; height: 200px;
+    border-radius: 32px;
+    background: linear-gradient(135deg, var(--brand-warm), var(--brand-calm));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 80px;
+    margin-bottom: 32px;
+  }
+  .welcome-features {
+    display: flex; flex-direction: column; gap: 14px;
+    margin-bottom: 36px;
+    width: 100%;
+    text-align: left;
+  }
+  .welcome-feature {
+    display: flex; align-items: center; gap: 12px;
+    font-size: 15px; color: rgba(255,255,255,0.8);
+  }
+  .welcome-feature span:first-child { font-size: 20px; flex-shrink: 0; }
+  .welcome-cta {
+    width: 100%;
+    background: var(--brand-warm);
+    color: #FFFFFF;
+    border: none;
+    border-radius: var(--radius-pill);
+    padding: 18px;
+    font-size: 18px;
+    font-weight: 700;
+    font-family: var(--font-main);
+    cursor: pointer;
+    margin-bottom: 16px;
+  }
+  .welcome-login { font-size: 14px; color: rgba(255,255,255,0.6); }
+  .welcome-login u { cursor: pointer; }
+
+  /* ========================
+     SCREEN: LOGIN
+  ======================== */
+  #screen-login { background: var(--bg-primary); padding-bottom: 40px; }
+  .login-content { padding: 0 24px; }
+  .login-title { font-size: 26px; font-weight: 700; color: var(--text-primary); margin-bottom: 6px; }
+  .login-subtitle { font-size: 14px; color: var(--text-muted); margin-bottom: 32px; }
+  .input-group { margin-bottom: 20px; }
+  .input-label { font-size: 12px; color: var(--text-muted); font-weight: 600; margin-bottom: 8px; display: block; }
+  .input-field {
+    width: 100%;
+    border: 1.5px solid var(--border);
+    border-radius: 16px;
+    padding: 16px;
+    font-size: 15px;
+    font-family: var(--font-main);
+    color: var(--text-primary);
+    background: var(--surface);
+    outline: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .forgot-link { text-align: right; font-size: 13px; color: var(--brand-warm); font-weight: 600; margin-top: -8px; margin-bottom: 24px; cursor: pointer; }
+  .divider-or {
+    display: flex; align-items: center; gap: 16px;
+    margin: 20px 0;
+  }
+  .divider-or::before, .divider-or::after {
+    content: ''; flex: 1; height: 1px; background: var(--border);
+  }
+  .divider-or span { font-size: 13px; color: var(--text-muted); font-weight: 500; }
+  .google-btn {
+    width: 100%;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-pill);
+    padding: 16px;
+    font-size: 15px;
+    font-weight: 600;
+    font-family: var(--font-main);
+    color: var(--text-primary);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .login-footer { text-align: center; margin-top: 24px; font-size: 14px; color: var(--text-muted); }
+  .login-footer a { color: var(--brand-warm); font-weight: 600; text-decoration: none; }
+
+  /* ========================
+     ONBOARDING SHARED
+  ======================== */
+  .ob-screen { background: var(--bg-primary); padding-bottom: 40px; }
+  .ob-top { padding: 0 24px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+  .ob-progress { display: flex; gap: 6px; align-items: center; }
+  .ob-dot { width: 24px; height: 6px; border-radius: 3px; background: var(--border); }
+  .ob-dot.filled { background: var(--brand-warm); }
+  .ob-skip { font-size: 14px; color: var(--text-muted); font-weight: 600; cursor: pointer; }
+  .ob-dismiss {
+    width: 36px; height: 36px; border-radius: 50%; background: var(--surface);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; color: var(--text-muted); cursor: pointer; box-shadow: var(--shadow-card);
+  }
+  .ob-body { padding: 0 24px; }
+  .ob-illustration {
+    width: 100%; height: 220px;
+    border-radius: 24px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 72px;
+    margin-bottom: 24px;
+  }
+  .ob-title { font-size: 24px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px; line-height: 1.3; }
+  .ob-subtitle { font-size: 14px; color: var(--text-muted); margin-bottom: 24px; line-height: 1.6; }
+  .ob-btn-wrap { padding: 0 24px; margin-top: auto; }
+
+  /* Feature rows for OB1 */
+  .ob-feature-row {
+    display: flex; align-items: center; gap: 14px;
+    margin-bottom: 14px;
+  }
+  .ob-feature-icon {
+    width: 40px; height: 40px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; flex-shrink: 0;
+  }
+  .ob-feature-text { font-size: 15px; font-weight: 600; color: var(--text-primary); }
+
+  /* Selectable cards for OB2 */
+  .ob-select-card {
+    display: flex; align-items: center; gap: 16px;
+    border: 2px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 14px;
+    background: var(--surface);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .ob-select-card.selected {
+    border-color: var(--brand-warm);
+    background: var(--brand-warm-light);
+  }
+  .ob-card-emoji { font-size: 32px; flex-shrink: 0; }
+  .ob-card-info { flex: 1; }
+  .ob-card-title { font-size: 16px; font-weight: 700; color: var(--text-primary); margin-bottom: 2px; }
+  .ob-card-sub { font-size: 13px; color: var(--text-muted); }
+  .ob-card-radio {
+    width: 24px; height: 24px; border-radius: 50%;
+    border: 2px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .ob-select-card.selected .ob-card-radio {
+    border-color: var(--brand-warm);
+    background: var(--brand-warm);
+  }
+  .ob-select-card.selected .ob-card-radio::after {
+    content: '';
+    width: 8px; height: 8px; border-radius: 50%; background: #FFFFFF;
+  }
+
+  /* Option pills for OB3 */
+  .ob-option-pill {
+    display: flex; align-items: center; justify-content: space-between;
+    border: 1.5px solid var(--border);
+    border-radius: 16px;
+    padding: 16px 20px;
+    margin-bottom: 12px;
+    background: var(--surface);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .ob-option-pill.selected {
+    border-color: var(--brand-warm);
+    background: var(--brand-warm-light);
+  }
+  .ob-option-text { font-size: 16px; font-weight: 600; color: var(--text-primary); }
+  .ob-option-dot {
+    width: 20px; height: 20px; border-radius: 50%;
+    border: 2px solid var(--border);
+  }
+  .ob-option-pill.selected .ob-option-dot {
+    border-color: var(--brand-warm);
+    background: var(--brand-warm);
+  }
+
+  /* Time cards for OB4 */
+  .ob-time-row { display: flex; gap: 12px; margin-bottom: 20px; }
+  .ob-time-card {
+    flex: 1;
+    border: 1.5px solid var(--border);
+    border-radius: 16px;
+    padding: 20px 12px;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    background: var(--surface);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .ob-time-card.selected {
+    border-color: var(--brand-warm);
+    background: var(--brand-warm-light);
+  }
+  .ob-time-emoji { font-size: 32px; }
+  .ob-time-label { font-size: 14px; font-weight: 700; color: var(--text-primary); }
+  .ob-time-range { font-size: 11px; color: var(--text-muted); }
+  .ob-time-picker {
+    background: var(--surface);
+    border-radius: 16px;
+    padding: 16px 20px;
+    display: flex; align-items: center; justify-content: space-between;
+    box-shadow: var(--shadow-card);
+    margin-bottom: 24px;
+  }
+  .ob-time-picker-label { font-size: 14px; color: var(--text-muted); font-weight: 500; }
+  .ob-time-picker-value { font-size: 18px; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 8px; }
+  .ob-time-arrow { font-size: 12px; color: var(--text-muted); display: flex; flex-direction: column; gap: 2px; line-height: 1; }
+
+  /* Summary card for OB5 */
+  .ob-summary-card {
+    background: linear-gradient(135deg, var(--brand-warm), #B85C34);
+    border-radius: 20px;
+    padding: 24px;
+    margin-bottom: 20px;
+  }
+  .ob-summary-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 12px 0;
+  }
+  .ob-summary-label { font-size: 14px; color: rgba(255,255,255,0.75); }
+  .ob-summary-value { font-size: 14px; font-weight: 700; color: #FFFFFF; }
+  .ob-summary-divider { height: 1px; background: rgba(255,255,255,0.2); }
+  .ob-chips-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px; }
+  .ob-chip {
+    padding: 8px 14px;
+    border-radius: var(--radius-pill);
+    font-size: 12px; font-weight: 600;
+    background: var(--surface);
+    color: var(--text-primary);
+    border: 1px solid var(--border);
+  }
+  .ob-chip.green { background: rgba(107,174,140,0.15); color: var(--mood-great); border-color: transparent; }
+
+  /* Mini chat for OB6 */
+  .ob-mini-chat {
+    background: var(--surface);
+    border-radius: 20px;
+    padding: 16px;
+    box-shadow: var(--shadow-card);
+    display: flex; flex-direction: column; gap: 12px;
+    margin-bottom: 16px;
+  }
+  .ob-mini-bubble {
+    border-radius: 16px;
+    padding: 12px 14px;
+    font-size: 14px;
+    line-height: 1.6;
+    max-width: 85%;
+  }
+  .ob-mini-bubble.ai {
+    background: #F5F5F8;
+    color: var(--text-primary);
+    border-bottom-left-radius: 4px;
+    align-self: flex-start;
+  }
+  .ob-mini-bubble.user {
+    background: var(--text-primary);
+    color: #FFFFFF;
+    border-bottom-right-radius: 4px;
+    align-self: flex-end;
+    font-family: var(--font-journal);
+    font-style: italic;
+  }
+  .ob-mini-typing {
+    display: flex; gap: 5px; align-self: flex-start;
+    padding: 10px 14px;
+    background: #F5F5F8;
+    border-radius: 16px;
+    border-bottom-left-radius: 4px;
+  }
+  .ob-mini-typing .typing-dot { width: 6px; height: 6px; }
+
+  /* ========================
+     PAYWALL (OB7)
+  ======================== */
+  #screen-ob7 { background: var(--bg-primary); }
+  .paywall-header {
+    background: linear-gradient(135deg, var(--brand-warm), #B85C34);
+    padding: 50px 24px 32px;
+    border-radius: 0 0 32px 32px;
+    text-align: center;
+    margin-bottom: 24px;
+  }
+  .paywall-header-emoji { font-size: 48px; margin-bottom: 8px; }
+  .paywall-header-title { font-size: 24px; font-weight: 700; color: #FFFFFF; margin-bottom: 6px; }
+  .paywall-header-sub { font-size: 14px; color: rgba(255,255,255,0.8); }
+  .paywall-body { padding: 0 24px; }
+  .paywall-feature {
+    display: flex; align-items: flex-start; gap: 14px;
+    padding: 12px 0;
+  }
+  .paywall-feature-emoji { font-size: 24px; flex-shrink: 0; }
+  .paywall-feature-text { font-size: 15px; color: var(--text-primary); font-weight: 500; line-height: 1.4; }
+  .paywall-feature-text small { font-size: 12px; color: var(--text-muted); display: block; margin-top: 2px; }
+  .paywall-feature-check { font-size: 16px; color: var(--mood-great); flex-shrink: 0; margin-left: auto; }
+
+  .plan-card {
+    border: 1.5px solid var(--border);
+    border-radius: 16px;
+    padding: 16px 20px;
+    margin-bottom: 12px;
+    background: var(--surface);
+    display: flex; align-items: center; justify-content: space-between;
+    cursor: pointer;
+    position: relative;
+    overflow: visible;
+  }
+  .plan-card.selected {
+    border: 2px solid var(--brand-warm);
+    background: var(--brand-warm-light);
+  }
+  .plan-badge {
+    position: absolute;
+    top: -10px; right: 16px;
+    background: var(--brand-warm);
+    color: #FFFFFF;
+    font-size: 10px; font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .plan-info {}
+  .plan-name { font-size: 16px; font-weight: 700; color: var(--text-primary); }
+  .plan-price-small { font-size: 12px; color: var(--text-muted); }
+  .plan-tag { display: inline-block; font-size: 11px; font-weight: 700; color: var(--mood-great); background: rgba(107,174,140,0.15); padding: 2px 8px; border-radius: 6px; margin-top: 4px; }
+  .plan-right { text-align: right; display: flex; align-items: center; gap: 12px; }
+  .plan-price-big { font-size: 18px; font-weight: 700; color: var(--text-primary); }
+  .plan-price-big small { font-size: 12px; font-weight: 500; color: var(--text-muted); }
+  .plan-radio {
+    width: 22px; height: 22px; border-radius: 50%;
+    border: 2px solid var(--border);
+  }
+  .plan-card.selected .plan-radio {
+    border-color: var(--brand-warm);
+    background: var(--brand-warm);
+    box-shadow: inset 0 0 0 4px #FFFFFF;
+  }
+  .paywall-fine { font-size: 11px; color: var(--text-muted); text-align: center; margin-top: 12px; }
+  .paywall-skip { font-size: 14px; color: var(--text-muted); text-align: center; margin-top: 16px; cursor: pointer; }
+
+  /* ========================
+     SCREEN: HOME
+  ======================== */
+  #screen-home { padding-bottom: 110px; }
+  .home-header {
+    padding: 0 24px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .user-info { display: flex; align-items: center; gap: 12px; }
+  .avatar {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--brand-warm), #C0A882);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; flex-shrink: 0;
+  }
+  .user-name { font-size: 16px; font-weight: 700; color: var(--text-primary); }
+  .user-subtitle { font-size: 12px; color: var(--text-muted); font-weight: 500; }
+  .notif-btn {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    background: var(--surface);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    box-shadow: var(--shadow-card);
+    cursor: pointer;
+    position: relative;
+  }
+  .notif-dot {
+    position: absolute;
+    top: 10px; right: 10px;
+    width: 8px; height: 8px;
+    background: var(--brand-warm);
+    border-radius: 50%;
+    border: 2px solid var(--bg-primary);
+  }
+  .greeting-section { padding: 0 24px 24px; }
+  .greeting-text { font-size: 26px; font-weight: 700; color: var(--text-primary); line-height: 1.2; margin-bottom: 6px; }
+  .greeting-sub { font-size: 14px; color: var(--text-muted); font-weight: 400; }
+
+  .mood-cta-card {
+    margin: 0 24px 28px;
+    background: linear-gradient(135deg, var(--brand-warm) 0%, #C0603A 100%);
+    border-radius: var(--radius-card);
+    padding: 22px 24px;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.15s;
+    box-shadow: 0 8px 32px rgba(212, 114, 74, 0.35);
+  }
+  .mood-cta-card:active { transform: scale(0.98); }
+  .mood-cta-bg {
+    position: absolute;
+    right: -20px; top: -20px;
+    width: 120px; height: 120px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 50%;
+  }
+  .mood-cta-bg2 {
+    position: absolute;
+    right: 30px; bottom: -30px;
+    width: 80px; height: 80px;
+    background: rgba(255,255,255,0.07);
+    border-radius: 50%;
+  }
+  .mood-cta-label { font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.75); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+  .mood-cta-title { font-size: 20px; font-weight: 700; color: #FFFFFF; margin-bottom: 16px; line-height: 1.3; }
+  .mood-cta-btn {
+    background: rgba(255,255,255,0.2);
+    border: 1.5px solid rgba(255,255,255,0.4);
+    border-radius: var(--radius-pill);
+    padding: 10px 20px;
+    color: #FFFFFF;
+    font-size: 14px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+  }
+  .streak-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: linear-gradient(135deg, #FF8C42, #FF5C1A);
+    border-radius: var(--radius-pill);
+    padding: 6px 14px;
+    margin: 0 24px 20px;
+    box-shadow: 0 4px 12px rgba(255,92,26,0.3);
+  }
+  .streak-text { font-size: 13px; font-weight: 700; color: #FFFFFF; }
+
+  .mood-circles-scroll {
+    display: flex;
+    gap: 16px;
+    padding: 0 24px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    margin-bottom: 28px;
+  }
+  .mood-circles-scroll::-webkit-scrollbar { display: none; }
+  .mood-circle-item { display: flex; flex-direction: column; align-items: center; gap: 8px; flex-shrink: 0; cursor: pointer; }
+  .mood-circle {
+    width: 60px; height: 60px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+  .mood-circle-label { font-size: 11px; color: var(--text-muted); font-weight: 600; text-align: center; }
+  .mood-circle-day { font-size: 10px; color: var(--text-light); font-weight: 500; margin-top: -4px; }
+
+  .journal-card {
+    margin: 0 24px 16px;
+    background: var(--surface);
+    border-radius: var(--radius-card);
+    overflow: hidden;
+    box-shadow: var(--shadow-card);
+    cursor: pointer;
+    transition: transform 0.15s;
+    position: relative;
+  }
+  .journal-card:active { transform: scale(0.98); }
+  .journal-card-image {
+    width: 100%; height: 160px;
+    position: relative;
+    display: flex; align-items: flex-end; overflow: hidden;
+  }
+  .journal-card-gradient { position: absolute; inset: 0; background: linear-gradient(to bottom, transparent 30%, rgba(0,0,0,0.6)); }
+  .journal-card-mood-tag {
+    position: absolute; top: 14px; left: 14px;
+    background: rgba(255,255,255,0.95);
+    border-radius: var(--radius-pill);
+    padding: 6px 12px;
+    font-size: 12px; font-weight: 600; color: var(--text-primary);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  }
+  .journal-card-date {
+    position: absolute; top: 14px; right: 14px;
+    background: rgba(0,0,0,0.4);
+    backdrop-filter: blur(8px);
+    border-radius: var(--radius-pill);
+    padding: 6px 12px;
+    font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.9);
+  }
+  .journal-card-body { padding: 16px 18px 18px; }
+  .journal-card-preview {
+    font-family: var(--font-journal);
+    font-style: italic;
+    font-size: 15px;
+    color: var(--text-primary);
+    line-height: 1.6;
+    margin-bottom: 12px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .journal-card-ai {
+    display: flex; align-items: flex-start; gap: 8px;
+    background: var(--brand-warm-light);
+    border-radius: 12px;
+    padding: 10px 12px;
+  }
+  .journal-card-ai-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+  .journal-card-ai-text {
+    font-size: 12px; color: var(--brand-warm); font-weight: 600; line-height: 1.5;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  }
+
+  .jcard-bg-1 { background: linear-gradient(135deg, #B8D4C8, #7BAAA0); }
+  .jcard-bg-2 { background: linear-gradient(135deg, #D4B8A0, #B08060); }
+  .jcard-bg-3 { background: linear-gradient(135deg, #C8B8D4, #9878B4); }
+
+  /* ========================
+     SCREEN: MOOD CHECK-IN
+  ======================== */
+  #screen-mood { padding-bottom: 30px; }
+  .mood-screen-title { font-size: 24px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px; line-height: 1.3; }
+  .mood-screen-sub { font-size: 14px; color: var(--text-muted); }
+  .mood-scale-container { padding: 0 24px; margin-bottom: 32px; }
+  .mood-scale { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 12px; }
+  .mood-scale-item {
+    flex: 1; aspect-ratio: 1;
+    border-radius: 20px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 6px; cursor: pointer; transition: all 0.2s;
+    border: 2px solid transparent;
+    background: var(--surface);
+    box-shadow: var(--shadow-card);
+  }
+  .mood-scale-item:active { transform: scale(0.95); }
+  .mood-scale-item.selected {
+    border-color: var(--brand-warm);
+    background: var(--brand-warm-light);
+    transform: scale(1.08);
+  }
+  .mood-scale-emoji { font-size: 28px; }
+  .mood-scale-label { font-size: 9px; font-weight: 600; color: var(--text-muted); text-align: center; }
+  .mood-tags-section { padding: 0 24px; margin-bottom: 28px; }
+  .mood-tags-title { font-size: 16px; font-weight: 700; color: var(--text-primary); margin-bottom: 14px; }
+  .mood-tags-grid { display: flex; flex-wrap: wrap; gap: 10px; }
+  .mood-tag {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-pill);
+    padding: 8px 16px;
+    font-size: 13px; font-weight: 600; color: var(--text-muted);
+    cursor: pointer; transition: all 0.2s;
+  }
+  .mood-tag.selected { background: var(--text-primary); border-color: var(--text-primary); color: #FFFFFF; }
+  .note-input {
+    margin: 0 24px 28px;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 16px;
+    padding: 16px;
+    font-family: var(--font-journal);
+    font-size: 15px;
+    color: var(--text-primary);
+    width: calc(100% - 48px);
+    height: 80px;
+    resize: none;
+    outline: none;
+    line-height: 1.6;
+  }
+  .note-input::placeholder { color: var(--text-light); }
+
+  /* ========================
+     SCREEN: MOOD SAVED
+  ======================== */
+  .saved-lottie {
+    width: 120px; height: 120px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--mood-great), #4CAF85);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 52px;
+    margin-bottom: 28px;
+    box-shadow: 0 12px 40px rgba(107,174,140,0.35);
+    animation: savedBounce 0.6s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  @keyframes savedBounce {
+    0% { transform: scale(0); }
+    100% { transform: scale(1); }
+  }
+  .saved-title { font-size: 26px; font-weight: 700; color: var(--text-primary); margin-bottom: 10px; }
+  .saved-subtitle { font-size: 15px; color: var(--text-muted); line-height: 1.6; margin-bottom: 20px; max-width: 260px; }
+
+  /* ========================
+     SCREEN: JOURNAL SESSION
+  ======================== */
+  #screen-journal { padding-bottom: 30px; }
+  .journal-header {
+    padding: 0 24px 16px;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .journal-header-info { flex: 1; }
+  .journal-header-name { font-size: 16px; font-weight: 700; color: var(--text-primary); }
+  .journal-header-status { font-size: 12px; color: var(--mood-great); font-weight: 600; display: flex; align-items: center; gap: 4px; }
+  .ai-avatar {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--brand-calm), #2D5F6E);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(74,125,140,0.3);
+  }
+  .session-info-chip {
+    margin: 0 24px 20px;
+    background: var(--brand-warm-light);
+    border-radius: 12px;
+    padding: 12px 16px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .session-info-text { font-size: 13px; color: var(--brand-warm); font-weight: 600; flex: 1; }
+  .free-usage { display: flex; align-items: center; gap: 6px; }
+  .free-usage-bar { width: 50px; height: 4px; background: rgba(212,114,74,0.2); border-radius: 2px; overflow: hidden; }
+  .free-usage-fill { width: 66%; height: 100%; background: var(--brand-warm); border-radius: 2px; }
+  .free-usage-text { font-size: 11px; color: var(--brand-warm); font-weight: 700; }
+  .chat-container { flex: 1; padding: 0 24px; display: flex; flex-direction: column; gap: 16px; margin-bottom: 20px; }
+  .chat-input-area {
+    margin: 0 24px 24px;
+    background: var(--surface);
+    border-radius: var(--radius-pill);
+    padding: 12px 14px 12px 20px;
+    display: flex; align-items: center; gap: 12px;
+    box-shadow: var(--shadow-card);
+    border: 1.5px solid var(--border);
+  }
+  .chat-input-field {
+    flex: 1; border: none; outline: none;
+    font-family: var(--font-journal);
+    font-size: 15px; color: var(--text-primary); background: transparent;
+  }
+  .chat-input-field::placeholder { color: var(--text-light); }
+  .chat-send-btn {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: var(--brand-warm);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; color: #FFFFFF;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(212,114,74,0.4);
+    flex-shrink: 0;
+  }
+
+  /* ========================
+     SCREEN: JOURNAL LIST
+  ======================== */
+  #screen-journal-list { padding-bottom: 110px; }
+  .jl-header {
+    padding: 0 24px 16px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .jl-title { font-size: 28px; font-weight: 700; color: var(--text-primary); }
+  .jl-search {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: var(--surface); box-shadow: var(--shadow-card);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; cursor: pointer;
+  }
+  .jl-stats {
+    display: flex; gap: 8px; padding: 0 24px; margin-bottom: 16px;
+    overflow-x: auto; scrollbar-width: none;
+  }
+  .jl-stats::-webkit-scrollbar { display: none; }
+  .jl-stat-chip {
+    flex-shrink: 0;
+    padding: 8px 14px;
+    border-radius: var(--radius-pill);
+    font-size: 13px; font-weight: 600;
+    background: var(--surface);
+    color: var(--text-primary);
+    box-shadow: var(--shadow-card);
+    white-space: nowrap;
+  }
+  .jl-filters {
+    display: flex; gap: 8px; padding: 0 24px; margin-bottom: 16px;
+    overflow-x: auto; scrollbar-width: none;
+  }
+  .jl-filters::-webkit-scrollbar { display: none; }
+  .jl-filter {
+    flex-shrink: 0;
+    padding: 8px 16px;
+    border-radius: var(--radius-pill);
+    font-size: 13px; font-weight: 600;
+    background: var(--surface);
+    color: var(--text-muted);
+    border: 1.5px solid var(--border);
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .jl-filter.selected { background: var(--text-primary); color: #FFFFFF; border-color: var(--text-primary); }
+
+  /* ========================
+     SCREEN: INSIGHTS
+  ======================== */
+  #screen-insights { padding-bottom: 110px; }
+  .ins-toggle {
+    display: flex; gap: 8px; padding: 0 24px; margin-bottom: 16px;
+  }
+  .ins-toggle-btn {
+    padding: 10px 20px;
+    border-radius: var(--radius-pill);
+    font-size: 14px; font-weight: 600;
+    cursor: pointer;
+    border: 1.5px solid var(--border);
+    background: var(--surface);
+    color: var(--text-muted);
+    font-family: var(--font-main);
+  }
+  .ins-toggle-btn.selected { background: var(--text-primary); color: #FFFFFF; border-color: var(--text-primary); }
+  .ins-card {
+    margin: 0 24px 16px;
+    background: var(--surface);
+    border-radius: var(--radius-card);
+    padding: 20px;
+    box-shadow: var(--shadow-card);
+  }
+  .ins-card-title { font-size: 15px; font-weight: 700; color: var(--text-primary); margin-bottom: 16px; }
+  .ins-chart { display: flex; align-items: flex-end; gap: 8px; height: 120px; margin-bottom: 12px; }
+  .ins-bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; justify-content: flex-end; }
+  .ins-bar {
+    width: 100%; border-radius: 6px 6px 0 0; min-height: 4px;
+    transition: height 0.3s;
+  }
+  .ins-bar.empty {
+    border: 2px dashed var(--border);
+    background: transparent;
+    border-radius: 6px;
+    min-height: 20px;
+  }
+  .ins-bar-label { font-size: 11px; color: var(--text-muted); font-weight: 600; }
+  .ins-avg { font-size: 13px; color: var(--text-muted); }
+  .ins-section-title { font-size: 17px; font-weight: 700; color: var(--text-primary); padding: 0 24px; margin-bottom: 12px; }
+  .ins-insight-card {
+    margin: 0 24px 12px;
+    background: var(--surface);
+    border-radius: var(--radius-card);
+    padding: 16px;
+    border-left: 4px solid var(--brand-warm);
+    font-size: 14px; color: var(--text-primary); line-height: 1.6;
+  }
+  .ins-insight-card.calm { border-left-color: var(--brand-calm); }
+
+  .ins-heatmap { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-bottom: 16px; }
+  .ins-heat-cell {
+    aspect-ratio: 1;
+    border-radius: 6px;
+    max-width: 28px;
+  }
+  .ins-legend { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .ins-legend-item { display: flex; align-items: center; gap: 4px; font-size: 10px; color: var(--text-muted); }
+  .ins-legend-color { width: 12px; height: 12px; border-radius: 3px; }
+
+  /* ========================
+     SCREEN: PROFILE
+  ======================== */
+  #screen-profile { padding-bottom: 110px; }
+  .prof-top { text-align: center; padding: 0 24px 24px; }
+  .prof-avatar {
+    width: 80px; height: 80px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--brand-warm), var(--brand-calm));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 36px;
+    margin: 0 auto 12px;
+  }
+  .prof-name { font-size: 22px; font-weight: 700; color: var(--text-primary); margin-bottom: 4px; }
+  .prof-email { font-size: 13px; color: var(--text-muted); margin-bottom: 10px; }
+  .prof-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: var(--brand-warm);
+    color: #FFFFFF;
+    padding: 6px 14px;
+    border-radius: var(--radius-pill);
+    font-size: 12px; font-weight: 700;
+  }
+  .prof-section-label {
+    font-size: 12px; font-weight: 700; color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: 0.5px;
+    padding: 0 24px; margin-bottom: 8px; margin-top: 16px;
+  }
+  .prof-menu-group {
+    margin: 0 24px 8px;
+    background: var(--surface);
+    border-radius: var(--radius-card);
+    overflow: hidden;
+    box-shadow: var(--shadow-card);
+  }
+  .prof-menu-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 16px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--border);
+  }
+  .prof-menu-item:last-child { border-bottom: none; }
+  .prof-menu-emoji { font-size: 20px; flex-shrink: 0; }
+  .prof-menu-text { flex: 1; font-size: 15px; font-weight: 500; color: var(--text-primary); }
+  .prof-menu-right { font-size: 13px; color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
+  .prof-menu-chevron { font-size: 14px; color: var(--text-light); }
+  .prof-logout {
+    margin: 16px 24px;
+    background: transparent;
+    border: 1.5px solid var(--mood-terrible);
+    border-radius: var(--radius-pill);
+    padding: 16px;
+    font-size: 16px; font-weight: 600; font-family: var(--font-main);
+    color: var(--mood-terrible);
+    cursor: pointer;
+    width: calc(100% - 48px);
+  }
+
+  /* ========================
+     SCREEN: SETTINGS
+  ======================== */
+  #screen-settings { background: var(--bg-primary); padding-bottom: 40px; }
+  .set-header {
+    padding: 0 24px 20px;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .set-title { font-size: 22px; font-weight: 700; color: var(--text-primary); }
+  .set-section-label {
+    font-size: 12px; font-weight: 700; color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: 0.5px;
+    padding: 0 24px; margin-bottom: 8px; margin-top: 16px;
+  }
+  .set-group {
+    margin: 0 24px 8px;
+    background: var(--surface);
+    border-radius: var(--radius-card);
+    overflow: hidden;
+    box-shadow: var(--shadow-card);
+  }
+  .set-toggle-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .set-toggle-row:last-child { border-bottom: none; }
+  .set-toggle-label { font-size: 15px; font-weight: 500; color: var(--text-primary); }
+  .set-toggle {
+    width: 51px; height: 31px;
+    border-radius: 16px;
+    background: #E0E0E0;
+    position: relative;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.2s;
+  }
+  .set-toggle.on { background: var(--brand-warm); }
+  .set-toggle::after {
+    content: '';
+    width: 27px; height: 27px;
+    border-radius: 50%;
+    background: #FFFFFF;
+    position: absolute;
+    top: 2px; left: 2px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    transition: transform 0.2s;
+  }
+  .set-toggle.on::after { transform: translateX(20px); }
+  .set-sub-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .set-sub-label { font-size: 14px; color: var(--text-muted); }
+  .set-sub-value { font-size: 14px; font-weight: 600; color: var(--brand-warm); cursor: pointer; }
+  .set-fine {
+    padding: 16px 24px;
+    font-size: 12px; color: var(--text-muted);
+    font-style: italic; line-height: 1.5;
+  }
+
+  /* ========================
+     DEMO NAV
+  ======================== */
+  .demo-nav {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    z-index: 200;
+    background: rgba(26,26,46,0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: 20px;
+    padding: 10px 16px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    max-width: 95vw;
+  }
+  .demo-nav::-webkit-scrollbar { display: none; }
+  .demo-label {
+    font-size: 10px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.4);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    padding: 0 4px;
+  }
+  .demo-btn {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: rgba(255,255,255,0.8);
+    border-radius: 14px;
+    padding: 6px 12px;
+    font-size: 11px;
+    font-weight: 600;
+    font-family: var(--font-main);
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .demo-btn:hover { background: rgba(255,255,255,0.2); color: white; }
+  .demo-btn.active-screen { background: var(--brand-warm); border-color: var(--brand-warm); color: white; }
+</style>
+</head>
+<body>
+
+<div class="phone">
+  <div class="phone-notch"></div>
+  <div class="home-indicator"></div>
+
+  <!-- ===================== SCREEN: WELCOME ===================== -->
+  <div class="screen active" id="screen-welcome">
+    <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:60px 24px 40px; min-height:100%; background:linear-gradient(160deg, #1A1A2E 0%, #2D1F3D 100%);">
+      <div class="welcome-emoji">✨</div>
+      <div class="welcome-wordmark">Reflect</div>
+      <div class="welcome-tagline">Refleksi diri, setiap hari</div>
+      <div class="welcome-illustration">🧘</div>
+      <div class="welcome-features">
+        <div class="welcome-feature"><span>✨</span><span>AI companion yang selalu ada</span></div>
+        <div class="welcome-feature"><span>📊</span><span>Insights mood & pola perasaan</span></div>
+        <div class="welcome-feature"><span>🔥</span><span>Streak harian yang bikin semangat</span></div>
+      </div>
+      <button class="welcome-cta" onclick="showScreen('screen-ob1')">Mulai Sekarang</button>
+      <div class="welcome-login">Sudah punya akun? <u onclick="showScreen('screen-login')">Masuk</u></div>
+    </div>
+  </div>
+
+  <!-- ===================== SCREEN: LOGIN ===================== -->
+  <div class="screen" id="screen-login">
+    <div class="status-bar"><span>9:41</span><span>📶 🔋</span></div>
+    <div class="login-content">
+      <div class="back-btn" onclick="showScreen('screen-welcome')" style="margin-bottom:24px;">←</div>
+      <div class="login-title">Masuk ke Reflect</div>
+      <div class="login-subtitle">Selamat datang kembali 🤍</div>
+      <div class="input-group">
+        <label class="input-label">Email</label>
+        <div class="input-field">darwin@gmail.com</div>
+      </div>
+      <div class="input-group">
+        <label class="input-label">Password</label>
+        <div class="input-field"><span>••••••••</span><span style="cursor:pointer;">👁</span></div>
+      </div>
+      <div class="forgot-link">Lupa password?</div>
+      <button class="primary-btn dark" onclick="showScreen('screen-home')">Masuk</button>
+      <div class="divider-or"><span>atau</span></div>
+      <button class="google-btn">🔍 Lanjut dengan Google</button>
+      <div class="login-footer">Belum punya akun? <a href="#" onclick="showScreen('screen-ob1');return false;">Daftar gratis</a></div>
+    </div>
+  </div>
+
+  <!-- ===================== SCREEN: OB1 ===================== -->
+  <div class="screen ob-screen" id="screen-ob1">
+    <div class="status-bar"><span>9:41</span><span>📶 🔋</span></div>
+    <div class="ob-top">
+      <div class="ob-progress">
+        <div class="ob-dot filled"></div>
+        <div class="ob-dot"></div><div class="ob-dot"></div><div class="ob-dot"></div>
+        <div class="ob-dot"></div><div class="ob-dot"></div><div class="ob-dot"></div>
+      </div>
+      <div class="ob-dismiss" onclick="showScreen('screen-home')">✕</div>
+    </div>
+    <div class="ob-body">
+      <div class="ob-illustration" style="background:var(--brand-warm-light);">🌟</div>
+      <div class="ob-title">Mulai refleksi harianmu 🌟</div>
+      <div class="ob-subtitle">Rasakan bedanya dalam 7 hari</div>
+      <div class="ob-feature-row">
+        <div class="ob-feature-icon" style="background:var(--brand-warm-light);">✨</div>
+        <div class="ob-feature-text">AI companion yang mendengarkan</div>
+      </div>
+      <div class="ob-feature-row">
+        <div class="ob-feature-icon" style="background:var(--brand-calm-light);">📊</div>
+        <div class="ob-feature-text">Insight pola emosi mingguanmu</div>
+      </div>
+      <div class="ob-feature-row">
+        <div class="ob-feature-icon" style="background:rgba(107,174,140,0.15);">🔥</div>
+        <div class="ob-feature-text">Streak harian yang menyemangati</div>
+      </div>
+    </div>
+    <div class="ob-btn-wrap" style="padding:24px;">
+      <button class="primary-btn" onclick="showScreen('screen-ob2')">Mulai →</button>
+    </div>
+  </div>
+
+  <!-- ===================== SCREEN: OB2 ===================== -->
+  <div class="screen ob-screen" id="screen-ob2">
+    <div class="status-bar"><span>9:41</span><span>📶 🔋</span></div>
+    <div class="ob-top">
+      <div class="ob-progress">
+        <div class="ob-dot filled"></div><div class="ob-dot filled"></div>
+        <div class="ob-dot"></div><div class="ob-dot"></div>
+        <div class="ob-dot"></div><div class="ob-dot"></div><div class="ob-dot"></div>
+      </div>
+      <div class="ob-skip" onclick="showScreen('screen-ob3')">Lewati</div>
+    </div>
+    <div class="ob-body">
+      <div class="ob-title" style="font-size:24px;">Apa tujuan utamamu?</div>
+      <div class="ob-subtitle">Pilih satu yang paling kamu rasakan</div>
+      <div class="ob-select-card selected" onclick="selectOb2Card(this)">
+        <div class="ob-card-emoji">🧘</div>
+        <div class="ob-card-info">
+          <div class="ob-card-title">Ketenangan Mental</div>
+          <div class="ob-card-sub">Kurangi stress & kecemasan</div>
+        </div>
+        <div class="ob-card-radio"></div>
+      </div>
+      <div class="ob-select-card" onclick="selectOb2Card(this)">
+        <div class="ob-card-emoji">⚡</div>
+        <div class="ob-card-info">
+          <div class="ob-card-title">Produktivitas</div>
+          <div class="ob-card-sub">Tingkatkan fokus & motivasi</div>
+        </div>
+        <div class="ob-card-radio"></div>
+      </div>
+      <div class="ob-select-card" onclick="selectOb2Card(this)">
+        <div class="ob-card-emoji">🌙</div>
+        <div class="ob-card-info">
+          <div class="ob-card-title">Tidur Lebih Baik</div>
+          <div class="ob-card-sub">Pola tidur yang lebih sehat</div>
+        </div>
+        <div class="ob-card-radio"></div>
+      </div>
+    </div>
+    <div style="padding:24px;">
+      <button class="primary-btn" onclick="showScreen('screen-ob3')">Lanjut →</button>
+    </div>
+  </div>
+
+  <!-- ===================== SCREEN: OB3 ===================== -->
+  <div class="screen ob-screen" id="screen-ob3">
+    <div class="status-bar"><span>9:41</span><span>📶 🔋</span></div>
+    <div class="ob-top">
+      <div class="ob-progress">
+        <div class="ob-dot filled"></div><div class="ob-dot filled"></div><div class="ob-dot filled"></div>
+        <div class="ob-dot"></div><div class="ob-dot"></div><div class="ob-dot"></div><div class="ob-dot"></div>
+      </div>
+      <div class="ob-skip" onclick="showScreen('screen-ob4')">Lewati</div>
+    </div>
+    <div class="ob-body">
+      <div class="ob-title" style="font-size:22px;">Seberapa sering kamu mau journaling?</div>
+      <div class="ob-subtitle">Tidak ada yang salah, semua oke 🤍</div>
+      <div class="ob-option-pill selected" onclick="selectOb3(this)">
+        <div class="ob-option-text">Setiap hari ✨</div>
+        <div class="ob-option-dot"></div>
+      </div>
+      <div class="ob-option-pill" onclick="selectOb3(this)">
+        <div class="ob-option-text">3-4x seminggu</div>
+        <div class="ob-option-dot"></div>
+      </div>
+      <div class="ob-option-pill" onclick="selectOb3(this)">
+        <div class="ob-option-text">Kalau lagi mau aja</div>
+        <div class="ob-option-dot"></div>
+      </div>
+    </div>
+    <div style="padding:24px;">
+      <button class="primary-btn" onclick="showScreen('screen-ob4')">Lanjut →</button>
+    </div>
+  </div>
+
+  <!-- ===================== SCREEN: OB4 ===================== -->
+  <div class="screen ob-screen" id="screen-ob4">
+    <div class="status-bar"><span>9:41</span><span>📶 🔋</span></div>
+    <div class="ob-top">
+      <div class="ob-progress">
+        <div class="ob-dot filled"></div><div class="ob-dot filled"></div><div class="ob-dot filled"></div>
+        <div class="ob-dot filled"></div><div class="ob-dot"></div><div class="ob-dot"></div><div class="ob-dot"></div>
+      </div>
+      <div class="ob-skip" onclick="showScreen('screen-ob5')">Lewati</div>
+    </div>
+    <div class="ob-body">
+      <div class="ob-title" style="font-size:22px;">Kapan kamu biasanya punya waktu?</div>
+      <div class="ob-subtitle">Biar kita ingetin di waktu yang pas</div>
+      <div class="ob-time-row">
+        <div class="ob-time-card selected" onclick="selectOb4(this)">
+          <div class="ob-time-emoji">🌅</div>
+          <div class="ob-time-label">Pagi</div>
+          <div class="ob-time-range">06:00-09:00</div>
+        </div>
+        <div class="ob-time-card" onclick="selectOb4(this)">
+          <div class="ob-time-emoji">🌙</div>
+          <div class="ob-time-label">Malam</div>
+          <div class="ob-time-range">20:00-22:00</div>
+        </div>
+        <div class="ob-time-card" onclick="selectOb4(this)">
+          <div class="ob-time-emoji">☀️</div>
+          <div class="ob-time-label">Keduanya</div>
+          <div class="ob-time-range"></div>
+        </div>
+      </div>
+      <div class="ob-time-picker">
+        <div class="ob-time-picker-label">Pengingat</div>
+        <div class="ob-time-picker-value">
+          <div class="ob-time-arrow"><span>▲</span><span>▼</span></div>
+          08:00
+        </div>
+      </div>
+    </div>
+    <div style="padding:24px;">
+      <button class="primary-btn" onclick="showScreen('screen-ob5')">Lanjut →</button>
+    </div>
+  </div>
+
+  <!-- ===================== SCREEN: OB5 ===================== -->
+  <div class="screen ob-screen" id="screen-ob5">
+    <div class="status-bar"><span>9:41</span><span>📶 🔋</span></div>
+    <div class="ob-top">
+      <div class="ob-progress">
+        <div class="ob-dot filled"></div><div class="ob-dot filled"></div><div class="ob-dot filled"></div>
+        <div class="ob-dot filled"></div><div class="ob-dot filled"></div><div class="ob-dot"></div><div class="ob-dot"></div>
+      </div>
+      <div></div>
+    </div>
+    <div class="ob-body" style="text-align:center;">
+      <div class="ob-title" style="font-size:24px;">Rencanamu sudah siap! 🎉</div>
+      <div class="ob-subtitle" style="text-align:center;">Ini personalized khusus buat kamu</div>
+      <div class="ob-summary-card">
+        <div class="ob-summary-row"><div class="ob-summary-label">Tujuan</div><div class="ob-summary-value">Ketenangan Mental</div></div>
+        <div class="ob-summary-divider"></div>
+        <div class="ob-summary-row"><div class="ob-summary-label">Jadwal</div><div class="ob-summary-value">Setiap hari, pagi</div></div>
+        <div class="ob-summary-divider"></div>
+        <div class="ob-summary-row"><div class="ob-summary-label">Target awal</div><div class="ob-summary-value">7 hari streak</div></div>
+        <div class="ob-summary-divider"></div>
+        <div class="ob-summary-row"><div class="ob-summary-label">AI Memory</div><div class="ob-summary-value">Aktif untuk kamu</div></div>
+      </div>
+      <div class="ob-chips-row" style="justify-content:center;">
+        <div class="ob-chip green">Gratis 7 hari</div>
+        <div class="ob-chip">Batalkan kapan saja</div>
+        <div class="ob-chip">100% privat</div>
+      </div>
+    </div>
+    <div style="padding:24px;">
+      <button class="primary-btn" onclick="showScreen('screen-ob6')">Mulai sekarang 🚀</button>
+    </div>
+  </div>
+
+  <!-- ===================== SCREEN: OB6 ===================== -->
+  <div class="screen ob-screen" id="screen-ob6">
+    <div class="status-bar"><span>9:41</span><span>📶 🔋</span></div>
+    <div class="ob-top">
+      <div class="ob-progress">
+        <div class="ob-dot filled"></div><div class="ob-dot filled"></div><div class="ob-dot filled"></div>
+        <div class="ob-dot filled"></div><div class="ob-dot filled"></div><div class="ob-dot filled"></div><div class="ob-dot"></div>
+      </div>
+      <div></div>
+    </div>
+    <div class="ob-body">
+      <div class="ob-title" style="font-size:20px;">Coba ngobrol dengan Reflect AI</div>
+      <div class="ob-subtitle" style="font-size:13px;">Satu percakapan gratis, sekarang</div>
+      <div class="ob-mini-chat">
+        <div class="ob-mini-bubble ai">Hai! Selamat datang 🌟 Gimana perasaan kamu hari ini? Cerita apa aja, aku dengerin.</div>
+        <div class="ob-mini-bubble user">Agak capek sih, tapi excited mau coba app ini 😊</div>
+        <div class="ob-mini-bubble ai">Waah, capek tapi masih semangat — itu tanda kamu punya drive yang bagus! 💪 Ada satu hal yang bikin hari ini berat?</div>
+        <div class="ob-mini-typing">
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+        </div>
+      </div>
+    </div>
+    <div style="padding:0 24px 24px;">
+      <button class="primary-btn" onclick="showScreen('screen-ob7')">Aku suka ini! Lanjut →</button>
+      <div class="ghost-btn" onclick="showScreen('screen-ob7')">Lanjut tanpa mencoba</div>
+    </div>
+  </div>
+
+  <!-- ===================== SCREEN: OB7 (PAYWALL) ===================== -->
+  <div class="screen" id="screen-ob7">
+    <div class="paywall-header">
+      <div class="paywall-header-emoji">✨</div>
+      <div class="paywall-header-title">Unlock Reflect Premium</div>
+      <div class="paywall-header-sub">Mulai 7 hari gratis</div>
+    </div>
+    <div class="paywall-body">
+      <div class="paywall-feature">
+        <div class="paywall-feature-emoji">🤖</div>
+        <div class="paywall-feature-text">AI companion tanpa batas<small>Free: 3x/minggu</small></div>
+        <div class="paywall-feature-check">✓</div>
+      </div>
+      <div class="paywall-feature">
+        <div class="paywall-feature-emoji">🧠</div>
+        <div class="paywall-feature-text">AI ingat perjalananmu<small>Memory aktif</small></div>
+        <div class="paywall-feature-check">✓</div>
+      </div>
+      <div class="paywall-feature">
+        <div class="paywall-feature-emoji">📊</div>
+        <div class="paywall-feature-text">Insights mendalam + mood heatmap</div>
+        <div class="paywall-feature-check">✓</div>
+      </div>
+      <div style="height:20px;"></div>
+      <div class="plan-card selected">
+        <div class="plan-badge">TERBAIK</div>
+        <div class="plan-info">
+          <div class="plan-name">Tahunan</div>
+          <div class="plan-price-small">Rp 24.900/bulan</div>
+          <div class="plan-tag">Hemat 36%</div>
+        </div>
+        <div class="plan-right">
+          <div><div class="plan-price-big">Rp 299.000<small>/tahun</small></div></div>
+          <div class="plan-radio"></div>
+        </div>
+      </div>
+      <div class="plan-card">
+        <div class="plan-info">
+          <div class="plan-name">Bulanan</div>
+          <div class="plan-price-small">Rp 39.000/bulan</div>
+        </div>
+        <div class="plan-right">
+          <div class="plan-radio"></div>
+        </div>
+      </div>
+      <div style="height:20px;"></div>
+      <button class="primary-btn" onclick="showScreen('screen-home')">Coba Gratis 7 Hari →</button>
+      <div class="paywall-fine">Batal kapan saja. Tidak ada biaya sampai hari ke-8.</div>
+      <div class="paywall-skip" onclick="showScreen('screen-home')">Nanti saja</div>
+    </div>
+  </div>
+
+  <!-- ===================== SCREEN: HOME ===================== -->
+  <div class="screen" id="screen-home">
+    <div class="status-bar"><span>9:41</span><span>📶 🔋</span></div>
+    <div class="home-header">
+      <div class="user-info">
+        <div class="avatar">🌿</div>
+        <div>
+          <div class="user-name">Darwin</div>
+          <div class="user-subtitle">Selamat pagi ✨</div>
+        </div>
+      </div>
+      <div class="notif-btn" onclick="showScreen('screen-settings')">
+        🔔
+        <div class="notif-dot"></div>
+      </div>
+    </div>
+    <div class="greeting-section">
+      <div class="greeting-text">Bagaimana perasaanmu<br>hari ini? 💭</div>
+      <div class="greeting-sub">Luangkan 2 menit untuk refleksi diri</div>
+    </div>
+    <div class="mood-cta-card" onclick="showScreen('screen-mood')">
+      <div class="mood-cta-bg"></div>
+      <div class="mood-cta-bg2"></div>
+      <div class="mood-cta-label">Cek Harian</div>
+      <div class="mood-cta-title">Mulai refleksi<br>harianmu</div>
+      <div class="mood-cta-btn">Cek Mood Sekarang →</div>
+    </div>
+    <div class="streak-badge">
+      <span>🔥</span>
+      <span class="streak-text">7 hari berturut-turut</span>
+    </div>
+    <div class="section-header">
+      <div class="section-title">Mood Minggu Ini</div>
+      <div class="section-link">Lihat Semua</div>
+    </div>
+    <div class="mood-circles-scroll">
+      <div class="mood-circle-item"><div class="mood-circle" style="background:#E8F4F0;">😄</div><div class="mood-circle-label">Senin</div><div class="mood-circle-day">Great</div></div>
+      <div class="mood-circle-item"><div class="mood-circle" style="background:#E8F4F0;">🙂</div><div class="mood-circle-label">Selasa</div><div class="mood-circle-day">Good</div></div>
+      <div class="mood-circle-item"><div class="mood-circle" style="background:#FEF9E0;">😐</div><div class="mood-circle-label">Rabu</div><div class="mood-circle-day">Okay</div></div>
+      <div class="mood-circle-item"><div class="mood-circle" style="background:#FEF0E8;">😟</div><div class="mood-circle-label">Kamis</div><div class="mood-circle-day">Low</div></div>
+      <div class="mood-circle-item"><div class="mood-circle" style="background:#E8F4F0;">😄</div><div class="mood-circle-label">Jumat</div><div class="mood-circle-day">Great</div></div>
+      <div class="mood-circle-item"><div class="mood-circle" style="background:#F0F0F0; border:2px dashed #DDD;">❓</div><div class="mood-circle-label">Sabtu</div><div class="mood-circle-day">—</div></div>
+    </div>
+    <div class="section-header">
+      <div class="section-title">Refleksi Terbaru</div>
+      <div class="section-link" onclick="showScreen('screen-journal-list')">Lihat Semua</div>
+    </div>
+    <div class="journal-card" onclick="showScreen('screen-journal')">
+      <div class="journal-card-image jcard-bg-1">
+        <div class="journal-card-gradient"></div>
+        <div class="journal-card-mood-tag">😄 Sangat Senang</div>
+        <div class="journal-card-date">2 hari lalu</div>
+      </div>
+      <div class="journal-card-body">
+        <div class="journal-card-preview">Akhirnya selesai juga project yang udah aku kerjain berminggu-minggu. Rasanya lega banget...</div>
+        <div class="journal-card-ai">
+          <div class="journal-card-ai-icon">✨</div>
+          <div class="journal-card-ai-text">Pencapaian ini bukan kebetulan — kamu yang membuatnya terjadi 💪</div>
+        </div>
+      </div>
+    </div>
+    <div class="journal-card" onclick="showScreen('screen-journal')">
+      <div class="journal-card-image jcard-bg-2">
+        <div class="journal-card-gradient"></div>
+        <div class="journal-card-mood-tag">😐 Biasa</div>
+        <div class="journal-card-date">5 hari lalu</div>
+      </div>
+      <div class="journal-card-body">
+        <div class="journal-card-preview">Hari ini kerja banyak tapi ngerasa gak produktif. Entah kenapa semua terasa berat...</div>
+        <div class="journal-card-ai">
+          <div class="journal-card-ai-icon">🤗</div>
+          <div class="journal-card-ai-text">Perasaan 'sibuk tapi gak produktif' itu nyata dan berat — kamu tidak sendiri</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== SCREEN: MOOD CHECK-IN ===================== -->
+  <div class="screen" id="screen-mood">
+    <div class="status-bar"><span>9:41</span><span>📶 🔋</span></div>
+    <div style="padding: 0 24px 24px;">
+      <div class="back-btn" onclick="showScreen('screen-home')" style="margin-bottom:24px;">←</div>
+      <div class="mood-screen-title">Bagaimana<br>perasaanmu hari ini?</div>
+      <div class="mood-screen-sub">Jujur aja, ini hanya untukmu 🤍</div>
+    </div>
+    <div class="mood-scale-container">
+      <div class="mood-scale">
+        <div class="mood-scale-item" onclick="selectMood(this)"><div class="mood-scale-emoji">😢</div><div class="mood-scale-label">Sangat<br>Sedih</div></div>
+        <div class="mood-scale-item" onclick="selectMood(this)"><div class="mood-scale-emoji">😟</div><div class="mood-scale-label">Sedih</div></div>
+        <div class="mood-scale-item selected" onclick="selectMood(this)"><div class="mood-scale-emoji">😐</div><div class="mood-scale-label">Biasa</div></div>
+        <div class="mood-scale-item" onclick="selectMood(this)"><div class="mood-scale-emoji">🙂</div><div class="mood-scale-label">Senang</div></div>
+        <div class="mood-scale-item" onclick="selectMood(this)"><div class="mood-scale-emoji">😄</div><div class="mood-scale-label">Sangat<br>Senang</div></div>
+      </div>
+    </div>
+    <div class="mood-tags-section">
+      <div class="mood-tags-title">Ada yang mempengaruhi? (opsional)</div>
+      <div class="mood-tags-grid">
+        <div class="mood-tag" onclick="toggleTag(this)">💼 Capek kerja</div>
+        <div class="mood-tag selected" onclick="toggleTag(this)">👨‍👩‍👧 Keluarga</div>
+        <div class="mood-tag" onclick="toggleTag(this)">❤️ Hubungan</div>
+        <div class="mood-tag" onclick="toggleTag(this)">🌿 Kesehatan</div>
+        <div class="mood-tag" onclick="toggleTag(this)">💰 Keuangan</div>
+        <div class="mood-tag" onclick="toggleTag(this)">🏆 Prestasi</div>
+        <div class="mood-tag" onclick="toggleTag(this)">+ Lainnya</div>
+      </div>
+    </div>
+    <textarea class="note-input" placeholder="Ceritakan sedikit... (opsional)"></textarea>
+    <div style="padding:0 24px;">
+      <button class="primary-btn dark" onclick="showScreen('screen-saved')">Simpan Mood ✓</button>
+    </div>
+    <div style="text-align:center; padding:14px; font-size:14px; color:var(--text-muted); font-weight:600; cursor:pointer;" onclick="showScreen('screen-home')">Lewati</div>
+  </div>
+
+  <!-- ===================== SCREEN: MOOD SAVED ===================== -->
+  <div class="screen" id="screen-saved" style="justify-content:center; align-items:center; text-align:center; padding:40px 24px;">
+    <div class="status-bar" style="position:absolute; top:0; left:0; right:0;"><span>9:41</span><span>📶 🔋</span></div>
+    <div style="display:flex; flex-direction:column; align-items:center;">
+      <div class="saved-lottie">✓</div>
+      <div class="saved-title">Mood Tersimpan! 🎉</div>
+      <div class="saved-subtitle">Mau cerita lebih? AI temanmu sudah siap mendengarkan dengan penuh perhatian.</div>
+      <div style="width:100%;">
+        <div style="background:var(--surface); border-radius:20px; border-bottom-left-radius:6px; padding:16px 18px; margin-bottom:20px; box-shadow:var(--shadow-card); text-align:left;">
+          <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+            <div class="ai-avatar" style="width:32px;height:32px;font-size:14px;">✨</div>
+            <div style="font-size:13px; font-weight:700; color:var(--text-primary);">Reflect AI</div>
+            <div style="font-size:11px; color:var(--mood-great); font-weight:600;">● Online</div>
+          </div>
+          <div style="font-size:14px; color:var(--text-primary); line-height:1.6;">
+            "Hai! Aku lihat hari ini kamu merasa biasa aja 😊 Terkadang hari yang 'biasa' justru punya banyak cerita menarik. Ada yang pengen kamu ceritain?"
+          </div>
+        </div>
+        <button class="primary-btn" onclick="showScreen('screen-journal')">Mulai Jurnal ✍️</button>
+        <div class="ghost-btn" onclick="showScreen('screen-home')">Nanti aja</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== SCREEN: JOURNAL SESSION ===================== -->
+  <div class="screen" id="screen-journal">
+    <div class="status-bar"><span>9:41</span><span>📶 🔋</span></div>
+    <div class="journal-header">
+      <div class="back-btn" onclick="showScreen('screen-home')">←</div>
+      <div class="ai-avatar">✨</div>
+      <div class="journal-header-info">
+        <div class="journal-header-name">Reflect AI</div>
+        <div class="journal-header-status">● Siap mendengarkan</div>
+      </div>
+      <div style="font-size:20px; cursor:pointer;">⋯</div>
+    </div>
+    <div class="session-info-chip">
+      <span style="font-size:16px;">😐</span>
+      <div class="session-info-text">Mood hari ini: Biasa • Keluarga</div>
+      <div class="free-usage">
+        <div class="free-usage-bar"><div class="free-usage-fill"></div></div>
+        <div class="free-usage-text">2/3</div>
+      </div>
+    </div>
+    <div class="chat-container">
+      <div class="chat-bubble ai">Hai! Aku lihat hari ini kamu merasa biasa aja 😊<br><br>Terkadang hari yang 'biasa' justru punya banyak hal menarik kalau kita perhatiin. Ada yang pengen kamu ceritain hari ini?</div>
+      <div class="chat-bubble user">Hari ini kerja banyak, tapi ngerasa gak produktif. Semua terasa berat entah kenapa.</div>
+      <div class="chat-bubble ai">Hmm, perasaan 'sibuk tapi gak produktif' itu berat banget ya... 😔<br><br>Kira-kira ada gak satu hal yang bikin kamu ngerasa paling terganggu hari ini?</div>
+      <div class="typing-indicator">
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+      </div>
+    </div>
+    <div class="chat-input-area" style="margin-bottom:24px;">
+      <input class="chat-input-field" placeholder="Cerita apa aja, aku dengerin..." />
+      <div class="chat-send-btn">↑</div>
+    </div>
+  </div>
+
+  <!-- ===================== SCREEN: JOURNAL LIST ===================== -->
+  <div class="screen" id="screen-journal-list">
+    <div class="status-bar"><span>9:41</span><span>📶 🔋</span></div>
+    <div class="jl-header">
+      <div class="jl-title">Jurnalku</div>
+      <div class="jl-search">🔍</div>
+    </div>
+    <div class="jl-stats">
+      <div class="jl-stat-chip">📓 24 entries</div>
+      <div class="jl-stat-chip">😊 4.2 avg mood</div>
+      <div class="jl-stat-chip">🔥 7 hari streak</div>
+    </div>
+    <div class="jl-filters">
+      <div class="jl-filter selected">Semua</div>
+      <div class="jl-filter">😊 Senang</div>
+      <div class="jl-filter">😐 Biasa</div>
+      <div class="jl-filter">😢 Sedih</div>
+    </div>
+    <div class="journal-card" onclick="showScreen('screen-journal')">
+      <div class="journal-card-image jcard-bg-1" style="height:140px;">
+        <div class="journal-card-gradient"></div>
+        <div class="journal-card-mood-tag">😄 Sangat Senang</div>
+        <div class="journal-card-date">2 hari lalu</div>
+      </div>
+      <div class="journal-card-body">
+        <div class="journal-card-preview">Akhirnya selesai juga project yang udah aku kerjain berminggu-minggu...</div>
+        <div class="journal-card-ai">
+          <div class="journal-card-ai-icon">✨</div>
+          <div class="journal-card-ai-text">Pencapaian ini bukan kebetulan 💪</div>
+        </div>
+      </div>
+    </div>
+    <div class="journal-card">
+      <div class="journal-card-image jcard-bg-2" style="height:140px;">
+        <div class="journal-card-gradient"></div>
+        <div class="journal-card-mood-tag">😐 Biasa</div>
+        <div class="journal-card-date">5 hari lalu</div>
+      </div>
+      <div class="journal-card-body">
+        <div class="journal-card-preview">Hari ini kerja banyak, tapi ngerasa gak produktif...</div>
+        <div class="journal-card-ai">
+          <div class="journal-card-ai-icon">🤗</div>
+          <div class="journal-card-ai-text">Kamu tidak sendiri merasakan ini</div>
+        </div>
+      </div>
+    </div>
+    <div class="journal-card">
+      <div class="journal-card-image jcard-bg-3" style="height:140px;">
+        <div class="journal-card-gradient"></div>
+        <div class="journal-card-mood-tag">😄 Senang</div>
+        <div class="journal-card-date">1 minggu lalu</div>
+      </div>
+      <div class="journal-card-body">
+        <div class="journal-card-preview">Weekend kemarin quality time sama keluarga...</div>
+        <div class="journal-card-ai">
+          <div class="journal-card-ai-icon">🌟</div>
+          <div class="journal-card-ai-text">Keluarga adalah kekuatan terbesarmu</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== SCREEN: INSIGHTS ===================== -->
+  <div class="screen" id="screen-insights">
+    <div class="status-bar"><span>9:41</span><span>📶 🔋</span></div>
+    <div style="padding:0 24px 8px;">
+      <div style="font-size:28px; font-weight:700; color:var(--text-primary);">Insights</div>
+    </div>
+    <div class="ins-toggle">
+      <button class="ins-toggle-btn selected">Minggu Ini</button>
+      <button class="ins-toggle-btn">Bulan Ini</button>
+    </div>
+    <div class="ins-card">
+      <div class="ins-card-title">Mood Minggu Ini</div>
+      <div class="ins-chart">
+        <div class="ins-bar-col"><div class="ins-bar" style="height:85%; background:var(--mood-great);"></div><div class="ins-bar-label">Sen</div></div>
+        <div class="ins-bar-col"><div class="ins-bar" style="height:70%; background:var(--mood-good);"></div><div class="ins-bar-label">Sel</div></div>
+        <div class="ins-bar-col"><div class="ins-bar" style="height:50%; background:var(--mood-okay);"></div><div class="ins-bar-label">Rab</div></div>
+        <div class="ins-bar-col"><div class="ins-bar" style="height:30%; background:var(--mood-bad);"></div><div class="ins-bar-label">Kam</div></div>
+        <div class="ins-bar-col"><div class="ins-bar" style="height:85%; background:var(--mood-great);"></div><div class="ins-bar-label">Jum</div></div>
+        <div class="ins-bar-col"><div class="ins-bar empty"></div><div class="ins-bar-label">Sab</div></div>
+        <div class="ins-bar-col"><div class="ins-bar empty"></div><div class="ins-bar-label">Min</div></div>
+      </div>
+      <div class="ins-avg">Rata-rata: 😊 4.2 / 5.0</div>
+    </div>
+    <div class="ins-section-title">Pola Minggu Ini</div>
+    <div class="ins-insight-card">😊 Kamu lebih bahagia di akhir minggu — Jum & Sab selalu di atas rata-rata</div>
+    <div class="ins-insight-card calm">👨‍👩‍👧 Waktu bersama keluarga = mood +2 poin rata-rata</div>
+    <div style="height:16px;"></div>
+    <div class="ins-card">
+      <div class="ins-card-title">Streak Kalender</div>
+      <div class="ins-heatmap">
+        <div class="ins-heat-cell" style="background:var(--mood-great);"></div>
+        <div class="ins-heat-cell" style="background:var(--mood-good);"></div>
+        <div class="ins-heat-cell" style="background:var(--mood-okay);"></div>
+        <div class="ins-heat-cell" style="background:var(--mood-great);"></div>
+        <div class="ins-heat-cell" style="background:var(--mood-bad);"></div>
+        <div class="ins-heat-cell" style="background:var(--mood-good);"></div>
+        <div class="ins-heat-cell" style="background:var(--mood-great);"></div>
+        <div class="ins-heat-cell" style="background:var(--mood-okay);"></div>
+        <div class="ins-heat-cell" style="background:var(--mood-great);"></div>
+        <div class="ins-heat-cell" style="background:var(--mood-good);"></div>
+        <div class="ins-heat-cell" style="background:var(--mood-okay);"></div>
+        <div class="ins-heat-cell" style="background:var(--mood-bad);"></div>
+        <div class="ins-heat-cell" style="background:var(--mood-great);"></div>
+        <div class="ins-heat-cell" style="background:var(--mood-good);"></div>
+        <div class="ins-heat-cell" style="background:var(--mood-great);"></div>
+        <div class="ins-heat-cell" style="background:var(--mood-good);"></div>
+        <div class="ins-heat-cell" style="background:var(--mood-okay);"></div>
+        <div class="ins-heat-cell" style="background:var(--mood-great);"></div>
+        <div class="ins-heat-cell" style="background:var(--mood-good);"></div>
+        <div class="ins-heat-cell" style="background:var(--mood-great);"></div>
+        <div class="ins-heat-cell" style="background:var(--mood-good);"></div>
+        <div class="ins-heat-cell" style="background:#F0F0F0;"></div>
+        <div class="ins-heat-cell" style="background:#F0F0F0;"></div>
+        <div class="ins-heat-cell" style="background:var(--mood-okay);"></div>
+        <div class="ins-heat-cell" style="background:var(--mood-great);"></div>
+        <div class="ins-heat-cell" style="background:var(--mood-good);"></div>
+        <div class="ins-heat-cell" style="background:var(--mood-great);"></div>
+        <div class="ins-heat-cell" style="background:var(--mood-okay);"></div>
+        <div class="ins-heat-cell" style="background:#F0F0F0;"></div>
+        <div class="ins-heat-cell" style="background:#F0F0F0;"></div>
+        <div class="ins-heat-cell" style="background:#F0F0F0;"></div>
+        <div class="ins-heat-cell" style="background:#F0F0F0;"></div>
+        <div class="ins-heat-cell" style="background:#F0F0F0;"></div>
+        <div class="ins-heat-cell" style="background:#F0F0F0;"></div>
+        <div class="ins-heat-cell" style="background:#F0F0F0;"></div>
+      </div>
+      <div class="ins-legend">
+        <div class="ins-legend-item"><div class="ins-legend-color" style="background:var(--mood-great);"></div>Sangat Senang</div>
+        <div class="ins-legend-item"><div class="ins-legend-color" style="background:var(--mood-good);"></div>Senang</div>
+        <div class="ins-legend-item"><div class="ins-legend-color" style="background:var(--mood-okay);"></div>Biasa</div>
+        <div class="ins-legend-item"><div class="ins-legend-color" style="background:var(--mood-bad);"></div>Sedih</div>
+        <div class="ins-legend-item"><div class="ins-legend-color" style="background:#F0F0F0;"></div>Kosong</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== SCREEN: PROFILE ===================== -->
+  <div class="screen" id="screen-profile">
+    <div class="status-bar"><span>9:41</span><span>📶 🔋</span></div>
+    <div class="prof-top" style="padding-top:8px;">
+      <div class="prof-avatar">🌿</div>
+      <div class="prof-name">Darwin</div>
+      <div class="prof-email">darwin@gmail.com</div>
+      <div class="prof-badge">✨ Premium</div>
+    </div>
+    <div class="prof-section-label">Akun</div>
+    <div class="prof-menu-group">
+      <div class="prof-menu-item" onclick="showScreen('screen-settings')">
+        <div class="prof-menu-emoji">🔔</div>
+        <div class="prof-menu-text">Notifikasi</div>
+        <div class="prof-menu-right"><span class="prof-menu-chevron">›</span></div>
+      </div>
+      <div class="prof-menu-item">
+        <div class="prof-menu-emoji">🌙</div>
+        <div class="prof-menu-text">Tampilan</div>
+        <div class="prof-menu-right"><span>Terang</span><span class="prof-menu-chevron">›</span></div>
+      </div>
+    </div>
+    <div class="prof-section-label">Privasi</div>
+    <div class="prof-menu-group">
+      <div class="prof-menu-item">
+        <div class="prof-menu-emoji">🔒</div>
+        <div class="prof-menu-text">Privasi & Data</div>
+        <div class="prof-menu-right"><span class="prof-menu-chevron">›</span></div>
+      </div>
+      <div class="prof-menu-item">
+        <div class="prof-menu-emoji">📤</div>
+        <div class="prof-menu-text">Ekspor Jurnal</div>
+        <div class="prof-menu-right"><span class="prof-menu-chevron">›</span></div>
+      </div>
+    </div>
+    <div class="prof-section-label">Lainnya</div>
+    <div class="prof-menu-group">
+      <div class="prof-menu-item">
+        <div class="prof-menu-emoji">❓</div>
+        <div class="prof-menu-text">Bantuan</div>
+        <div class="prof-menu-right"><span class="prof-menu-chevron">›</span></div>
+      </div>
+      <div class="prof-menu-item">
+        <div class="prof-menu-emoji">📝</div>
+        <div class="prof-menu-text">Tentang Reflect</div>
+        <div class="prof-menu-right"><span>v1.0.0</span><span class="prof-menu-chevron">›</span></div>
+      </div>
+    </div>
+    <div style="display:flex; justify-content:center;">
+      <button class="prof-logout">Keluar</button>
+    </div>
+  </div>
+
+  <!-- ===================== SCREEN: SETTINGS ===================== -->
+  <div class="screen" id="screen-settings">
+    <div class="status-bar"><span>9:41</span><span>📶 🔋</span></div>
+    <div class="set-header">
+      <div class="back-btn" onclick="showScreen('screen-profile')">←</div>
+      <div class="set-title">Pengaturan Notifikasi</div>
+    </div>
+    <div class="set-section-label">Pengingat Harian</div>
+    <div class="set-group">
+      <div class="set-toggle-row">
+        <div class="set-toggle-label">Aktifkan pengingat</div>
+        <div class="set-toggle on" onclick="this.classList.toggle('on')"></div>
+      </div>
+      <div class="set-sub-row">
+        <div class="set-sub-label">Waktu</div>
+        <div class="set-sub-value">08:00 →</div>
+      </div>
+    </div>
+    <div class="set-section-label">Tipe Notifikasi</div>
+    <div class="set-group">
+      <div class="set-toggle-row">
+        <div class="set-toggle-label">Pengingat mood harian</div>
+        <div class="set-toggle on" onclick="this.classList.toggle('on')"></div>
+      </div>
+      <div class="set-toggle-row">
+        <div class="set-toggle-label">Pengingat jurnal</div>
+        <div class="set-toggle on" onclick="this.classList.toggle('on')"></div>
+      </div>
+      <div class="set-toggle-row">
+        <div class="set-toggle-label">Pencapaian streak</div>
+        <div class="set-toggle on" onclick="this.classList.toggle('on')"></div>
+      </div>
+      <div class="set-toggle-row">
+        <div class="set-toggle-label">Tips wellbeing</div>
+        <div class="set-toggle" onclick="this.classList.toggle('on')"></div>
+      </div>
+    </div>
+    <div class="set-fine">Notifikasi hanya muncul di waktu yang kamu pilih. Tidak ada spam.</div>
+  </div>
+
+  <!-- ===================== TAB BAR ===================== -->
+  <div class="tab-bar" id="main-tab-bar" style="display:none;">
+    <div class="tab-item active" data-tab="tab-home" onclick="showScreen('screen-home')">
+      <span class="tab-icon">🏠</span>
+      <span class="tab-label">Today</span>
+    </div>
+    <div class="tab-item" data-tab="tab-journal" onclick="showScreen('screen-journal-list')">
+      <span class="tab-icon">📓</span>
+      <span class="tab-label">Jurnal</span>
+    </div>
+    <div class="tab-item" data-tab="tab-insights" onclick="showScreen('screen-insights')">
+      <span class="tab-icon">📊</span>
+      <span class="tab-label">Insights</span>
+    </div>
+    <div class="tab-item" data-tab="tab-profile" onclick="showScreen('screen-profile')">
+      <span class="tab-icon">👤</span>
+      <span class="tab-label">Profil</span>
+    </div>
+  </div>
+
+</div><!-- /phone -->
+
+<!-- Demo Nav -->
+<div class="demo-nav">
+  <span class="demo-label">AUTH</span>
+  <button class="demo-btn active-screen" data-screen="screen-welcome" onclick="showScreen('screen-welcome')">Welcome</button>
+  <button class="demo-btn" data-screen="screen-login" onclick="showScreen('screen-login')">Login</button>
+  <span class="demo-label">ONBOARDING</span>
+  <button class="demo-btn" data-screen="screen-ob1" onclick="showScreen('screen-ob1')">OB1</button>
+  <button class="demo-btn" data-screen="screen-ob2" onclick="showScreen('screen-ob2')">OB2</button>
+  <button class="demo-btn" data-screen="screen-ob3" onclick="showScreen('screen-ob3')">OB3</button>
+  <button class="demo-btn" data-screen="screen-ob4" onclick="showScreen('screen-ob4')">OB4</button>
+  <button class="demo-btn" data-screen="screen-ob5" onclick="showScreen('screen-ob5')">OB5</button>
+  <button class="demo-btn" data-screen="screen-ob6" onclick="showScreen('screen-ob6')">OB6</button>
+  <button class="demo-btn" data-screen="screen-ob7" onclick="showScreen('screen-ob7')">Bayar</button>
+  <span class="demo-label">APP</span>
+  <button class="demo-btn" data-screen="screen-home" onclick="showScreen('screen-home')">Home</button>
+  <button class="demo-btn" data-screen="screen-mood" onclick="showScreen('screen-mood')">Mood</button>
+  <button class="demo-btn" data-screen="screen-saved" onclick="showScreen('screen-saved')">Saved</button>
+  <button class="demo-btn" data-screen="screen-journal-list" onclick="showScreen('screen-journal-list')">Jurnal</button>
+  <button class="demo-btn" data-screen="screen-journal" onclick="showScreen('screen-journal')">Sesi</button>
+  <button class="demo-btn" data-screen="screen-insights" onclick="showScreen('screen-insights')">Insights</button>
+  <button class="demo-btn" data-screen="screen-profile" onclick="showScreen('screen-profile')">Profil</button>
+  <button class="demo-btn" data-screen="screen-settings" onclick="showScreen('screen-settings')">Notif</button>
+</div>
+
+<script>
+  // Screens that show the tab bar
+  var tabScreens = ['screen-home','screen-journal-list','screen-insights','screen-profile'];
+  // Map screens to which tab is active
+  var screenToTab = {
+    'screen-home': 'tab-home',
+    'screen-journal-list': 'tab-journal',
+    'screen-insights': 'tab-insights',
+    'screen-profile': 'tab-profile'
+  };
+
+  function showScreen(id) {
+    // Hide all screens
+    document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('active'); });
+    var el = document.getElementById(id);
+    if (el) {
+      el.classList.add('active');
+      el.scrollTop = 0;
+    }
+
+    // Tab bar visibility
+    var tabBar = document.getElementById('main-tab-bar');
+    if (tabScreens.indexOf(id) !== -1) {
+      tabBar.style.display = 'flex';
+    } else {
+      tabBar.style.display = 'none';
+    }
+
+    // Update active tab
+    document.querySelectorAll('.tab-item').forEach(function(t) { t.classList.remove('active'); });
+    var tabId = screenToTab[id];
+    if (tabId) {
+      document.querySelectorAll('.tab-item').forEach(function(t) {
+        if (t.getAttribute('data-tab') === tabId) t.classList.add('active');
+      });
+    }
+
+    // Update demo nav
+    document.querySelectorAll('.demo-btn').forEach(function(b) { b.classList.remove('active-screen'); });
+    document.querySelectorAll('.demo-btn').forEach(function(b) {
+      if (b.getAttribute('data-screen') === id) b.classList.add('active-screen');
+    });
+
+    // Home indicator visibility on dark screens
+    var indicator = document.querySelector('.home-indicator');
+    if (id === 'screen-welcome') {
+      indicator.style.background = '#FFFFFF';
+      indicator.style.opacity = '0.25';
+    } else {
+      indicator.style.background = 'var(--text-primary)';
+      indicator.style.opacity = '0.18';
+    }
+  }
+
+  function selectMood(el) {
+    document.querySelectorAll('.mood-scale-item').forEach(function(i) { i.classList.remove('selected'); });
+    el.classList.add('selected');
+  }
+
+  function toggleTag(el) {
+    el.classList.toggle('selected');
+  }
+
+  function selectOb2Card(el) {
+    document.querySelectorAll('.ob-select-card').forEach(function(c) { c.classList.remove('selected'); });
+    el.classList.add('selected');
+  }
+
+  function selectOb3(el) {
+    document.querySelectorAll('.ob-option-pill').forEach(function(c) { c.classList.remove('selected'); });
+    el.classList.add('selected');
+  }
+
+  function selectOb4(el) {
+    document.querySelectorAll('.ob-time-card').forEach(function(c) { c.classList.remove('selected'); });
+    el.classList.add('selected');
+  }
+
+  // Start with welcome screen
+  showScreen('screen-welcome');
+</script>
+</body>
+</html>

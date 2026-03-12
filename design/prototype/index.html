@@ -3,1260 +3,488 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Reflect — App Prototype</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
+<title>Reflect — iOS Prototype</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Lora:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg-primary: #FAF8F5;
-    --surface: #FFFFFF;
-    --brand-warm: #D4724A;
-    --brand-warm-light: #F0E8E2;
-    --brand-calm: #4A7D8C;
-    --brand-calm-light: #E2EDF0;
-    --mood-great: #6BAE8C;
-    --mood-good: #A8C97A;
-    --mood-okay: #E8C84A;
-    --mood-bad: #E89A5A;
-    --mood-terrible: #D46A6A;
-    --text-primary: #1A1A2E;
-    --text-muted: #8A8A9A;
-    --text-light: #B8B8C8;
-    --border: #EFEFEF;
-    --shadow-card: 0 4px 20px rgba(0,0,0,0.08);
-    --shadow-tab: 0 -8px 32px rgba(0,0,0,0.12);
-    --radius-card: 20px;
-    --radius-pill: 50px;
-    --font-main: 'Plus Jakarta Sans', sans-serif;
-    --font-journal: 'Lora', serif;
-  }
-
-  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
-  body {
-    background: #1A1A2E;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    font-family: var(--font-main);
-    overflow: hidden;
-  }
-
-  /* PHONE FRAME */
-  .phone {
-    width: 390px;
-    height: 844px;
-    background: var(--bg-primary);
-    border-radius: 48px;
-    overflow: hidden;
-    position: relative;
-    box-shadow: 0 40px 80px rgba(0,0,0,0.6), 0 0 0 2px #2A2A3E, inset 0 0 0 1px rgba(255,255,255,0.1);
-  }
-
-  .phone-notch {
-    position: absolute;
-    top: 0; left: 50%;
-    transform: translateX(-50%);
-    width: 126px; height: 34px;
-    background: #0A0A0A;
-    border-radius: 0 0 20px 20px;
-    z-index: 100;
-  }
-
-  .screen {
-    position: absolute;
-    inset: 0;
-    overflow-y: auto;
-    overflow-x: hidden;
-    display: none;
-    flex-direction: column;
-    padding-bottom: 100px;
-    scrollbar-width: none;
-  }
-  .screen::-webkit-scrollbar { display: none; }
-  .screen.active { display: flex; }
-
-  /* STATUS BAR */
-  .status-bar {
-    padding: 54px 28px 12px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--text-primary);
-    flex-shrink: 0;
-  }
-
-  /* TAB BAR */
-  .tab-bar {
-    position: absolute;
-    bottom: 0; left: 0; right: 0;
-    padding: 12px 24px 28px;
-    background: rgba(250,248,245,0.95);
-    backdrop-filter: blur(20px);
-    box-shadow: var(--shadow-tab);
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    z-index: 50;
-  }
-
-  .tab-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    cursor: pointer;
-    transition: all 0.2s;
-    padding: 8px 16px;
-    border-radius: var(--radius-pill);
-  }
-
-  .tab-item.active {
-    background: var(--text-primary);
-    flex-direction: row;
-    gap: 8px;
-  }
-
-  .tab-icon {
-    font-size: 20px;
-    line-height: 1;
-  }
-
-  .tab-label {
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--text-muted);
-  }
-
-  .tab-item.active .tab-label {
-    color: #FFFFFF;
-    font-size: 13px;
-  }
-
-  /* SECTION HEADERS */
-  .section-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0 24px;
-    margin-bottom: 16px;
-  }
-
-  .section-title {
-    font-size: 18px;
-    font-weight: 700;
-    color: var(--text-primary);
-  }
-
-  .section-link {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--brand-warm);
-  }
-
-  /* ========================
-     SCREEN 1: HOME
-  ======================== */
-  .home-header {
-    padding: 0 24px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .user-info { display: flex; align-items: center; gap: 12px; }
-
-  .avatar {
-    width: 44px; height: 44px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--brand-warm), #C0A882);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 18px;
-    flex-shrink: 0;
-  }
-
-  .user-name { font-size: 16px; font-weight: 700; color: var(--text-primary); }
-  .user-subtitle { font-size: 12px; color: var(--text-muted); font-weight: 500; }
-
-  .notif-btn {
-    width: 44px; height: 44px;
-    border-radius: 50%;
-    background: var(--surface);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 20px;
-    box-shadow: var(--shadow-card);
-    cursor: pointer;
-    position: relative;
-  }
-
-  .notif-dot {
-    position: absolute;
-    top: 10px; right: 10px;
-    width: 8px; height: 8px;
-    background: var(--brand-warm);
-    border-radius: 50%;
-    border: 2px solid var(--bg-primary);
-  }
-
-  .greeting-section {
-    padding: 0 24px 24px;
-  }
-
-  .greeting-text {
-    font-size: 26px;
-    font-weight: 700;
-    color: var(--text-primary);
-    line-height: 1.2;
-    margin-bottom: 6px;
-  }
-
-  .greeting-sub {
-    font-size: 14px;
-    color: var(--text-muted);
-    font-weight: 400;
-  }
-
-  /* MOOD CHECK-IN CARD (replaces search bar from ref) */
-  .mood-cta-card {
-    margin: 0 24px 28px;
-    background: linear-gradient(135deg, var(--brand-warm) 0%, #C0603A 100%);
-    border-radius: var(--radius-card);
-    padding: 22px 24px;
-    position: relative;
-    overflow: hidden;
-    cursor: pointer;
-    transition: transform 0.15s;
-    box-shadow: 0 8px 32px rgba(212, 114, 74, 0.35);
-  }
-
-  .mood-cta-card:active { transform: scale(0.98); }
-
-  .mood-cta-bg {
-    position: absolute;
-    right: -20px; top: -20px;
-    width: 120px; height: 120px;
-    background: rgba(255,255,255,0.1);
-    border-radius: 50%;
-  }
-
-  .mood-cta-bg2 {
-    position: absolute;
-    right: 30px; bottom: -30px;
-    width: 80px; height: 80px;
-    background: rgba(255,255,255,0.07);
-    border-radius: 50%;
-  }
-
-  .mood-cta-label {
-    font-size: 12px;
-    font-weight: 600;
-    color: rgba(255,255,255,0.75);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 8px;
-  }
-
-  .mood-cta-title {
-    font-size: 20px;
-    font-weight: 700;
-    color: #FFFFFF;
-    margin-bottom: 16px;
-    line-height: 1.3;
-  }
-
-  .mood-cta-btn {
-    background: rgba(255,255,255,0.2);
-    border: 1.5px solid rgba(255,255,255,0.4);
-    border-radius: var(--radius-pill);
-    padding: 10px 20px;
-    color: #FFFFFF;
-    font-size: 14px;
-    font-weight: 600;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    cursor: pointer;
-  }
-
-  /* MOOD HISTORY CIRCLES (replaces destination circles from ref) */
-  .mood-circles-scroll {
-    display: flex;
-    gap: 16px;
-    padding: 0 24px;
-    overflow-x: auto;
-    scrollbar-width: none;
-    margin-bottom: 28px;
-  }
-
-  .mood-circle-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    flex-shrink: 0;
-    cursor: pointer;
-  }
-
-  .mood-circle {
-    width: 60px; height: 60px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 26px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    position: relative;
-  }
-
-  .mood-circle-label {
-    font-size: 11px;
-    color: var(--text-muted);
-    font-weight: 600;
-    text-align: center;
-  }
-
-  .mood-circle-day {
-    font-size: 10px;
-    color: var(--text-light);
-    font-weight: 500;
-    margin-top: -4px;
-  }
-
-  /* STREAK BADGE */
-  .streak-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: linear-gradient(135deg, #FF8C42, #FF5C1A);
-    border-radius: var(--radius-pill);
-    padding: 6px 14px;
-    margin: 0 24px 20px;
-    box-shadow: 0 4px 12px rgba(255,92,26,0.3);
-  }
-
-  .streak-text {
-    font-size: 13px;
-    font-weight: 700;
-    color: #FFFFFF;
-  }
-
-  /* JOURNAL CARDS (replaces "Top Recommendation" cards) */
-  .journal-card {
-    margin: 0 24px 16px;
-    background: var(--surface);
-    border-radius: var(--radius-card);
-    overflow: hidden;
-    box-shadow: var(--shadow-card);
-    cursor: pointer;
-    transition: transform 0.15s;
-  }
-
-  .journal-card:active { transform: scale(0.98); }
-
-  .journal-card-image {
-    width: 100%;
-    height: 160px;
-    position: relative;
-    display: flex;
-    align-items: flex-end;
-    overflow: hidden;
-  }
-
-  .journal-card-gradient {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(to bottom, transparent 30%, rgba(0,0,0,0.6));
-  }
-
-  .journal-card-mood-tag {
-    position: absolute;
-    top: 14px; left: 14px;
-    background: rgba(255,255,255,0.95);
-    border-radius: var(--radius-pill);
-    padding: 6px 12px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--text-primary);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-  }
-
-  .journal-card-date {
-    position: absolute;
-    top: 14px; right: 14px;
-    background: rgba(0,0,0,0.4);
-    backdrop-filter: blur(8px);
-    border-radius: var(--radius-pill);
-    padding: 6px 12px;
-    font-size: 11px;
-    font-weight: 600;
-    color: rgba(255,255,255,0.9);
-  }
-
-  .journal-card-body {
-    padding: 16px 18px 18px;
-  }
-
-  .journal-card-preview {
-    font-family: var(--font-journal);
-    font-size: 15px;
-    color: var(--text-primary);
-    line-height: 1.6;
-    margin-bottom: 12px;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-
-  .journal-card-ai {
-    display: flex;
-    align-items: flex-start;
-    gap: 8px;
-    background: var(--brand-warm-light);
-    border-radius: 12px;
-    padding: 10px 12px;
-  }
-
-  .journal-card-ai-icon {
-    font-size: 16px;
-    flex-shrink: 0;
-    margin-top: 1px;
-  }
-
-  .journal-card-ai-text {
-    font-size: 12px;
-    color: var(--brand-warm);
-    font-weight: 600;
-    line-height: 1.5;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-
-  .journal-card-arrow {
-    position: absolute;
-    bottom: 20px; right: 20px;
-    width: 40px; height: 40px;
-    background: var(--brand-warm);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 16px;
-    box-shadow: 0 4px 12px rgba(212,114,74,0.4);
-  }
-
-  /* ========================
-     SCREEN 2: MOOD CHECK-IN
-  ======================== */
-  .mood-screen-header {
-    padding: 0 24px 24px;
-    text-align: center;
-  }
-
-  .back-btn {
-    width: 44px; height: 44px;
-    border-radius: 50%;
-    background: var(--surface);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 18px;
-    box-shadow: var(--shadow-card);
-    cursor: pointer;
-    margin-bottom: 24px;
-    margin-left: 0;
-  }
-
-  .mood-screen-title {
-    font-size: 24px;
-    font-weight: 700;
-    color: var(--text-primary);
-    margin-bottom: 8px;
-    line-height: 1.3;
-  }
-
-  .mood-screen-sub {
-    font-size: 14px;
-    color: var(--text-muted);
-  }
-
-  .mood-scale-container {
-    padding: 0 24px;
-    margin-bottom: 32px;
-  }
-
-  .mood-scale {
-    display: flex;
-    justify-content: space-between;
-    gap: 8px;
-    margin-bottom: 12px;
-  }
-
-  .mood-scale-item {
-    flex: 1;
-    aspect-ratio: 1;
-    border-radius: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    cursor: pointer;
-    transition: all 0.2s;
-    border: 2px solid transparent;
-    background: var(--surface);
-    box-shadow: var(--shadow-card);
-  }
-
-  .mood-scale-item:active { transform: scale(0.95); }
-
-  .mood-scale-item.selected {
-    border-color: var(--brand-warm);
-    background: var(--brand-warm-light);
-    transform: scale(1.08);
-  }
-
-  .mood-scale-emoji { font-size: 28px; }
-  .mood-scale-label { font-size: 9px; font-weight: 600; color: var(--text-muted); text-align: center; }
-
-  .mood-tags-section {
-    padding: 0 24px;
-    margin-bottom: 28px;
-  }
-
-  .mood-tags-title {
-    font-size: 16px;
-    font-weight: 700;
-    color: var(--text-primary);
-    margin-bottom: 14px;
-  }
-
-  .mood-tags-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-  }
-
-  .mood-tag {
-    background: var(--surface);
-    border: 1.5px solid var(--border);
-    border-radius: var(--radius-pill);
-    padding: 8px 16px;
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--text-muted);
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-
-  .mood-tag.selected {
-    background: var(--text-primary);
-    border-color: var(--text-primary);
-    color: #FFFFFF;
-  }
-
-  .note-input {
-    margin: 0 24px 28px;
-    background: var(--surface);
-    border: 1.5px solid var(--border);
-    border-radius: 16px;
-    padding: 16px;
-    font-family: var(--font-journal);
-    font-size: 15px;
-    color: var(--text-primary);
-    width: calc(100% - 48px);
-    height: 80px;
-    resize: none;
-    outline: none;
-    line-height: 1.6;
-  }
-
-  .note-input::placeholder { color: var(--text-light); }
-
-  .primary-btn {
-    margin: 0 24px;
-    background: var(--text-primary);
-    color: #FFFFFF;
-    border: none;
-    border-radius: var(--radius-pill);
-    padding: 18px;
-    font-size: 16px;
-    font-weight: 700;
-    font-family: var(--font-main);
-    width: calc(100% - 48px);
-    cursor: pointer;
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-  }
-
-  .primary-btn:active { transform: scale(0.98); opacity: 0.9; }
-
-  /* ========================
-     SCREEN 3: JOURNAL SESSION
-  ======================== */
-  .journal-header {
-    padding: 0 24px 16px;
-    display: flex;
-    align-items: center;
-    gap: 14px;
-  }
-
-  .journal-header-info { flex: 1; }
-  .journal-header-name { font-size: 16px; font-weight: 700; color: var(--text-primary); }
-  .journal-header-status {
-    font-size: 12px; color: var(--mood-great); font-weight: 600;
-    display: flex; align-items: center; gap: 4px;
-  }
-
-  .ai-avatar {
-    width: 44px; height: 44px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--brand-calm), #2D5F6E);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 20px;
-    flex-shrink: 0;
-    box-shadow: 0 4px 12px rgba(74,125,140,0.3);
-  }
-
-  .session-info-chip {
-    margin: 0 24px 20px;
-    background: var(--brand-warm-light);
-    border-radius: 12px;
-    padding: 12px 16px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .session-info-text {
-    font-size: 13px;
-    color: var(--brand-warm);
-    font-weight: 600;
-    flex: 1;
-  }
-
-  .free-usage {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-
-  .free-usage-bar {
-    width: 50px; height: 4px;
-    background: rgba(212,114,74,0.2);
-    border-radius: 2px;
-    overflow: hidden;
-  }
-
-  .free-usage-fill {
-    width: 66%;
-    height: 100%;
-    background: var(--brand-warm);
-    border-radius: 2px;
-  }
-
-  .free-usage-text {
-    font-size: 11px;
-    color: var(--brand-warm);
-    font-weight: 700;
-  }
-
-  .chat-container {
-    flex: 1;
-    padding: 0 24px;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    margin-bottom: 20px;
-  }
-
-  .chat-bubble {
-    max-width: 80%;
-    border-radius: 20px;
-    padding: 14px 16px;
-    line-height: 1.6;
-    font-size: 15px;
-  }
-
-  .chat-bubble.ai {
-    background: var(--surface);
-    color: var(--text-primary);
-    border-bottom-left-radius: 6px;
-    align-self: flex-start;
-    box-shadow: var(--shadow-card);
-    font-family: var(--font-main);
-  }
-
-  .chat-bubble.user {
-    background: var(--text-primary);
-    color: #FFFFFF;
-    border-bottom-right-radius: 6px;
-    align-self: flex-end;
-    font-family: var(--font-journal);
-    font-style: italic;
-  }
-
-  .typing-indicator {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 14px 16px;
-    background: var(--surface);
-    border-radius: 20px;
-    border-bottom-left-radius: 6px;
-    width: fit-content;
-    box-shadow: var(--shadow-card);
-  }
-
-  .typing-dot {
-    width: 7px; height: 7px;
-    border-radius: 50%;
-    background: var(--text-light);
-    animation: typingPulse 1.4s ease-in-out infinite;
-  }
-
-  .typing-dot:nth-child(2) { animation-delay: 0.2s; }
-  .typing-dot:nth-child(3) { animation-delay: 0.4s; }
-
-  @keyframes typingPulse {
-    0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
-    30% { transform: translateY(-6px); opacity: 1; }
-  }
-
-  .chat-input-area {
-    margin: 0 24px;
-    background: var(--surface);
-    border-radius: var(--radius-pill);
-    padding: 12px 14px 12px 20px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    box-shadow: var(--shadow-card);
-    border: 1.5px solid var(--border);
-  }
-
-  .chat-input-field {
-    flex: 1;
-    border: none;
-    outline: none;
-    font-family: var(--font-journal);
-    font-size: 15px;
-    color: var(--text-primary);
-    background: transparent;
-  }
-
-  .chat-input-field::placeholder { color: var(--text-light); }
-
-  .chat-send-btn {
-    width: 40px; height: 40px;
-    border-radius: 50%;
-    background: var(--brand-warm);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 16px;
-    cursor: pointer;
-    box-shadow: 0 4px 12px rgba(212,114,74,0.4);
-    flex-shrink: 0;
-  }
-
-  /* ========================
-     SCREEN 4: MOOD SAVED
-  ======================== */
-  .saved-screen {
-    display: none;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 24px;
-    text-align: center;
-    height: 100%;
-  }
-
-  .saved-screen.active { display: flex; }
-
-  .saved-lottie {
-    width: 120px; height: 120px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--mood-great), #4CAF85);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 52px;
-    margin-bottom: 28px;
-    box-shadow: 0 12px 40px rgba(107,174,140,0.35);
-    animation: savedBounce 0.6s cubic-bezier(0.34,1.56,0.64,1);
-  }
-
-  @keyframes savedBounce {
-    0% { transform: scale(0); }
-    100% { transform: scale(1); }
-  }
-
-  .saved-title {
-    font-size: 26px;
-    font-weight: 700;
-    color: var(--text-primary);
-    margin-bottom: 10px;
-  }
-
-  .saved-subtitle {
-    font-size: 15px;
-    color: var(--text-muted);
-    line-height: 1.6;
-    margin-bottom: 36px;
-    max-width: 260px;
-  }
-
-  .ghost-btn {
-    margin: 12px 24px 0;
-    background: transparent;
-    color: var(--text-muted);
-    border: none;
-    border-radius: var(--radius-pill);
-    padding: 14px;
-    font-size: 14px;
-    font-weight: 600;
-    font-family: var(--font-main);
-    width: calc(100% - 48px);
-    cursor: pointer;
-    text-align: center;
-  }
-
-  /* SCREEN NAV BUTTONS (for demo) */
-  .demo-nav {
-    position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    gap: 8px;
-    z-index: 200;
-  }
-
-  .demo-btn {
-    background: rgba(255,255,255,0.15);
-    border: 1px solid rgba(255,255,255,0.3);
-    color: rgba(255,255,255,0.8);
-    border-radius: 20px;
-    padding: 8px 16px;
-    font-size: 12px;
-    font-weight: 600;
-    font-family: var(--font-main);
-    cursor: pointer;
-    transition: all 0.2s;
-    white-space: nowrap;
-  }
-
-  .demo-btn:hover { background: rgba(255,255,255,0.25); color: white; }
-  .demo-btn.active-screen { background: var(--brand-warm); border-color: var(--brand-warm); color: white; }
-
-  /* BG GRADIENTS FOR JOURNAL CARDS */
-  .jcard-bg-1 { background: linear-gradient(135deg, #B8D4C8, #7BAAA0); }
-  .jcard-bg-2 { background: linear-gradient(135deg, #D4B8A0, #B08060); }
-  .jcard-bg-3 { background: linear-gradient(135deg, #C8B8D4, #9878B4); }
-
-  /* SCROLL FIX FOR SCREENS */
-  #screen-home { padding-bottom: 110px; }
-  #screen-mood { padding-bottom: 30px; }
-  #screen-journal { padding-bottom: 30px; }
-
-  /* POPULAR MOODS SECTION (from ref 2 style) */
-  .popular-moods {
-    display: flex;
-    gap: 12px;
-    padding: 0 24px;
-    overflow-x: auto;
-    scrollbar-width: none;
-    margin-bottom: 28px;
-  }
-
-  .popular-mood-card {
-    flex-shrink: 0;
-    width: 80px;
-    background: var(--surface);
-    border-radius: 20px;
-    padding: 16px 0 14px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    box-shadow: var(--shadow-card);
-    cursor: pointer;
-  }
-
-  .popular-mood-emoji { font-size: 28px; }
-  .popular-mood-label { font-size: 11px; font-weight: 600; color: var(--text-muted); text-align: center; }
+:root{--bg:#FAF8F5;--surface:#FFFFFF;--warm:#D4724A;--warm-light:#F0E8E2;--calm:#4A7D8C;--calm-light:#E2EDF0;--great:#6BAE8C;--good:#A8C97A;--okay:#E8C84A;--bad:#E89A5A;--terrible:#D46A6A;--text:#1A1A2E;--muted:#8A8A9A;--light:#B8B8C8;--border:#EFEFEF;--cs:0 4px 16px rgba(0,0,0,0.10);--ts:0 -8px 32px rgba(0,0,0,0.12);--r:16px;--pill:50px;--f:'Plus Jakarta Sans',sans-serif;--j:'Lora',serif;}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+body{background:#1A1A2E;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;font-family:var(--f);padding:40px 0 100px;overflow-x:hidden;}
+.phone{width:390px;height:844px;background:var(--bg);border-radius:48px;overflow:hidden;position:relative;box-shadow:0 40px 80px rgba(0,0,0,0.6),0 0 0 2px #2A2A3E,inset 0 0 0 1px rgba(255,255,255,0.1);flex-shrink:0;}
+.notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:126px;height:34px;background:#0A0A0A;border-radius:0 0 20px 20px;z-index:100;}
+.homebar{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:134px;height:5px;background:var(--text);border-radius:var(--pill);opacity:.18;z-index:60;}
+.screen{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;display:none;flex-direction:column;scrollbar-width:none;}
+.screen::-webkit-scrollbar{display:none;}
+.screen.active{display:flex;}
+.sb{padding:54px 24px 10px;display:flex;justify-content:space-between;align-items:center;font-size:12px;font-weight:600;color:var(--text);flex-shrink:0;}
+.tab-bar{position:absolute;bottom:0;left:0;right:0;padding:12px 24px 28px;background:rgba(250,248,245,0.95);backdrop-filter:blur(20px);box-shadow:var(--ts);display:flex;justify-content:space-around;align-items:center;z-index:50;border-top:1px solid rgba(0,0,0,0.06);}
+.ti{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;padding:8px 16px;border-radius:var(--pill);transition:all .2s;}
+.ti.on{background:var(--text);flex-direction:row;gap:8px;}
+.ti span:first-child{font-size:20px;line-height:1;}
+.ti span:last-child{font-size:11px;font-weight:600;color:var(--muted);}
+.ti.on span:last-child{color:#fff;font-size:13px;}
+.pbt{padding-bottom:100px;}
+.p24{padding:0 24px;}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;margin:0 24px;background:var(--text);color:#fff;border:none;border-radius:var(--pill);padding:18px;font-size:16px;font-weight:700;font-family:var(--f);width:calc(100% - 48px);cursor:pointer;}
+.btnw{background:var(--warm);}
+.back{width:44px;height:44px;border-radius:50%;background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:var(--cs);cursor:pointer;flex-shrink:0;border:1px solid var(--border);}
+.sh{display:flex;justify-content:space-between;align-items:center;padding:0 24px;margin-bottom:16px;}
+.st{font-size:18px;font-weight:700;color:var(--text);}
+.sl{font-size:13px;font-weight:600;color:var(--warm);}
+.pr{display:flex;align-items:center;justify-content:space-between;padding:0 24px;margin-bottom:24px;}
+.dots{display:flex;gap:6px;}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--border);}
+.dot.on{background:var(--warm);width:20px;border-radius:4px;}
+.skip{font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;}
+.jc{margin:0 24px 16px;background:var(--surface);border-radius:var(--r);overflow:hidden;box-shadow:var(--cs);cursor:pointer;position:relative;}
+.ji{width:100%;height:150px;position:relative;overflow:hidden;}
+.jg{position:absolute;inset:0;background:linear-gradient(to bottom,transparent 30%,rgba(0,0,0,0.55));}
+.jm{position:absolute;top:12px;left:12px;background:rgba(255,255,255,0.95);border-radius:var(--pill);padding:5px 10px;font-size:11px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:4px;}
+.jd{position:absolute;top:12px;right:12px;background:rgba(0,0,0,0.4);backdrop-filter:blur(8px);border-radius:var(--pill);padding:5px 10px;font-size:10px;font-weight:600;color:rgba(255,255,255,0.9);}
+.jb{padding:14px 16px 16px;}
+.jp{font-family:var(--j);font-size:14px;color:var(--text);line-height:1.65;margin-bottom:10px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.ja{display:flex;align-items:flex-start;gap:8px;background:var(--warm-light);border-radius:10px;padding:9px 11px;}
+.jat{font-size:12px;color:var(--warm);font-weight:600;line-height:1.5;}
+.jarr{position:absolute;bottom:18px;right:18px;width:36px;height:36px;background:var(--warm);border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-size:14px;box-shadow:0 4px 12px rgba(212,114,74,0.4);}
+.cw{flex:1;padding:0 24px;display:flex;flex-direction:column;gap:14px;margin-bottom:16px;}
+.b{max-width:80%;border-radius:20px;padding:13px 16px;line-height:1.6;font-size:15px;}
+.b.ai{background:var(--surface);color:var(--text);border-bottom-left-radius:5px;align-self:flex-start;box-shadow:var(--cs);}
+.b.u{background:var(--text);color:#fff;border-bottom-right-radius:5px;align-self:flex-end;font-family:var(--j);font-style:italic;}
+.typ{display:flex;align-items:center;gap:5px;padding:13px 16px;background:var(--surface);border-radius:20px;border-bottom-left-radius:5px;width:fit-content;box-shadow:var(--cs);}
+.dtd{width:7px;height:7px;border-radius:50%;background:var(--light);animation:pp 1.4s ease-in-out infinite;}
+.dtd:nth-child(2){animation-delay:.2s;}.dtd:nth-child(3){animation-delay:.4s;}
+@keyframes pp{0%,60%,100%{transform:translateY(0);opacity:.4;}30%{transform:translateY(-6px);opacity:1;}}
+.ci{margin:0 24px;background:var(--surface);border-radius:var(--pill);padding:10px 10px 10px 20px;display:flex;align-items:center;gap:10px;box-shadow:var(--cs);border:1.5px solid var(--border);}
+.cf{flex:1;border:none;outline:none;font-family:var(--j);font-size:14px;color:var(--text);background:transparent;}
+.cf::placeholder{color:var(--light);}
+.sb2{width:40px;height:40px;border-radius:50%;background:var(--warm);display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;box-shadow:0 4px 12px rgba(212,114,74,0.4);flex-shrink:0;color:white;}
+.ms{display:flex;justify-content:space-between;gap:8px;padding:0 24px;margin-bottom:10px;}
+.mi{flex:1;aspect-ratio:1;border-radius:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;transition:all .2s;border:2px solid transparent;background:var(--surface);box-shadow:var(--cs);}
+.mi.on{border-color:var(--warm);background:var(--warm-light);transform:scale(1.08);}
+.me{font-size:28px;}.ml{font-size:9px;font-weight:600;color:var(--muted);text-align:center;}
+.tg{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--pill);padding:8px 16px;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;transition:all .2s;}
+.tg.on{background:var(--text);border-color:var(--text);color:#fff;}
+.bc{display:flex;align-items:flex-end;gap:8px;height:80px;padding:0 4px;}
+.bco{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;}
+.bar{width:100%;border-radius:6px 6px 0 0;}
+.bdy{font-size:9px;color:var(--muted);font-weight:600;}
+.hm{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
+.hc{aspect-ratio:1;border-radius:4px;}
+.tr{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:var(--surface);border-radius:12px;margin-bottom:8px;border:1px solid var(--border);}
+.ts{width:51px;height:31px;border-radius:var(--pill);display:flex;align-items:center;padding:3px;cursor:pointer;}
+.ts.on{background:var(--warm);justify-content:flex-end;}
+.ts.off{background:#D1D5DB;justify-content:flex-start;}
+.tk{width:25px;height:25px;background:#fff;border-radius:50%;box-shadow:0 2px 6px rgba(0,0,0,0.2);}
+.ab{display:flex;align-items:center;justify-content:center;gap:12px;margin:0 24px;background:#fff;border:1px solid #dadce0;border-radius:var(--pill);padding:14px;width:calc(100% - 48px);cursor:pointer;font-family:var(--f);font-size:15px;font-weight:600;color:#3c4043;box-shadow:0 1px 3px rgba(0,0,0,0.08);}
+.ab.ms2{border-color:#8c8c8c;color:#5e5e5e;}
+.mi2{display:flex;align-items:center;gap:14px;padding:15px 16px;background:var(--surface);border-bottom:1px solid var(--border);cursor:pointer;}
+.mi2:last-child{border-bottom:none;}
+.mx{font-size:20px;width:28px;text-align:center;}
+.mt{flex:1;font-size:15px;font-weight:600;color:var(--text);}
+.mv{font-size:13px;color:var(--muted);}
+.mch{color:var(--muted);font-size:14px;}
+.ms3{margin:0 24px 16px;border-radius:var(--r);overflow:hidden;box-shadow:var(--cs);}
+.mst{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;padding:0 24px;margin-bottom:8px;}
+@keyframes bi{0%{transform:scale(0);}100%{transform:scale(1);}}
+.dn{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:5px;background:rgba(26,26,46,0.9);border-radius:20px;padding:10px 16px;backdrop-filter:blur(12px);overflow-x:auto;scrollbar-width:none;max-width:90vw;z-index:200;}
+.dn::-webkit-scrollbar{display:none;}
+.nl{font-size:10px;font-weight:700;color:rgba(255,255,255,0.35);letter-spacing:1px;text-transform:uppercase;white-space:nowrap;padding:0 4px;}
+.nb{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.18);border-radius:12px;color:rgba(255,255,255,0.75);padding:6px 11px;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap;font-family:var(--f);}
+.nb.on{background:var(--warm);border-color:var(--warm);color:#fff;}
 </style>
 </head>
 <body>
-
 <div class="phone">
-  <div class="phone-notch"></div>
+<div class="notch"></div>
 
-  <!-- ===================== SCREEN 1: HOME ===================== -->
-  <div class="screen active" id="screen-home">
-    <div class="status-bar">
-      <span>9:41</span>
-      <span>📶 🔋</span>
+<!-- WELCOME -->
+<div class="screen active" id="sw" style="background:linear-gradient(160deg,#1A1A2E,#2D1F3D);justify-content:center;align-items:center;padding:40px 24px;">
+  <div style="text-align:center;width:100%;">
+    <div style="font-size:52px;margin-bottom:12px;">✨</div>
+    <div style="font-size:40px;font-weight:700;color:#fff;letter-spacing:-1px;margin-bottom:6px;">Reflect</div>
+    <div style="font-size:16px;color:rgba(255,255,255,0.7);margin-bottom:36px;">Refleksi diri, setiap hari</div>
+    <div style="width:180px;height:180px;border-radius:32px;background:linear-gradient(135deg,var(--warm),var(--calm));display:flex;align-items:center;justify-content:center;font-size:76px;margin:0 auto 36px;box-shadow:0 20px 60px rgba(212,114,74,0.4);">🧘</div>
+    <div style="display:flex;flex-direction:column;gap:14px;margin-bottom:40px;text-align:left;padding:0 8px;">
+      <div style="display:flex;align-items:center;gap:12px;"><span style="font-size:22px;">✨</span><span style="color:rgba(255,255,255,0.8);font-size:14px;font-weight:500;">AI companion yang selalu ada</span></div>
+      <div style="display:flex;align-items:center;gap:12px;"><span style="font-size:22px;">📊</span><span style="color:rgba(255,255,255,0.8);font-size:14px;font-weight:500;">Insights mood &amp; pola perasaan</span></div>
+      <div style="display:flex;align-items:center;gap:12px;"><span style="font-size:22px;">🔥</span><span style="color:rgba(255,255,255,0.8);font-size:14px;font-weight:500;">Streak harian yang bikin semangat</span></div>
     </div>
+    <button class="btn btnw" onclick="S('sl')" style="margin-bottom:16px;">Mulai Sekarang</button>
+    <div style="color:rgba(255,255,255,0.55);font-size:14px;cursor:pointer;" onclick="S('sl')">Sudah punya akun? <span style="text-decoration:underline;color:rgba(255,255,255,0.8);">Masuk</span></div>
+  </div>
+</div>
 
-    <!-- Header -->
-    <div class="home-header">
-      <div class="user-info">
-        <div class="avatar">🌿</div>
-        <div>
-          <div class="user-name">Darwin</div>
-          <div class="user-subtitle">Selamat pagi ✨</div>
-        </div>
-      </div>
-      <div class="notif-btn">
-        🔔
-        <div class="notif-dot"></div>
-      </div>
-    </div>
-
-    <!-- Greeting -->
-    <div class="greeting-section">
-      <div class="greeting-text">Bagaimana perasaanmu<br>hari ini? 💭</div>
-      <div class="greeting-sub">Luangkan 2 menit untuk refleksi diri</div>
-    </div>
-
-    <!-- Mood CTA Card -->
-    <div class="mood-cta-card" onclick="showScreen('screen-mood')">
-      <div class="mood-cta-bg"></div>
-      <div class="mood-cta-bg2"></div>
-      <div class="mood-cta-label">Cek Harian</div>
-      <div class="mood-cta-title">Mulai refleksi<br>harianmu</div>
-      <div class="mood-cta-btn">Cek Mood Sekarang →</div>
-    </div>
-
-    <!-- Streak -->
-    <div class="streak-badge">
-      <span>🔥</span>
-      <span class="streak-text">7 hari berturut-turut</span>
-    </div>
-
-    <!-- Mood History Circles (like destination circles in ref 1) -->
-    <div class="section-header">
-      <div class="section-title">Mood Minggu Ini</div>
-      <div class="section-link">Lihat Semua</div>
-    </div>
-
-    <div class="mood-circles-scroll">
-      <div class="mood-circle-item">
-        <div class="mood-circle" style="background:#E8F4F0;">😄</div>
-        <div class="mood-circle-label">Senin</div>
-        <div class="mood-circle-day">Great</div>
-      </div>
-      <div class="mood-circle-item">
-        <div class="mood-circle" style="background:#E8F4F0;">🙂</div>
-        <div class="mood-circle-label">Selasa</div>
-        <div class="mood-circle-day">Good</div>
-      </div>
-      <div class="mood-circle-item">
-        <div class="mood-circle" style="background:#FEF9E0;">😐</div>
-        <div class="mood-circle-label">Rabu</div>
-        <div class="mood-circle-day">Okay</div>
-      </div>
-      <div class="mood-circle-item">
-        <div class="mood-circle" style="background:#FEF0E8;">😟</div>
-        <div class="mood-circle-label">Kamis</div>
-        <div class="mood-circle-day">Low</div>
-      </div>
-      <div class="mood-circle-item">
-        <div class="mood-circle" style="background:#E8F4F0;">😄</div>
-        <div class="mood-circle-label">Jumat</div>
-        <div class="mood-circle-day">Great</div>
-      </div>
-      <div class="mood-circle-item">
-        <div class="mood-circle" style="background: #F0F0F0; border: 2px dashed #DDD;">❓</div>
-        <div class="mood-circle-label">Sabtu</div>
-        <div class="mood-circle-day">—</div>
-      </div>
-    </div>
-
-    <!-- Recent Journals (like "Top Recommendation" in ref 1) -->
-    <div class="section-header">
-      <div class="section-title">Refleksi Terbaru</div>
-      <div class="section-link">Lihat Semua</div>
-    </div>
-
-    <!-- Journal Card 1 -->
-    <div class="journal-card" onclick="showScreen('screen-journal')" style="position:relative;">
-      <div class="journal-card-image jcard-bg-1">
-        <div class="journal-card-gradient"></div>
-        <div class="journal-card-mood-tag">😄 Sangat Senang</div>
-        <div class="journal-card-date">2 hari lalu</div>
-      </div>
-      <div class="journal-card-body">
-        <div class="journal-card-preview">"Akhirnya selesai juga project yang udah aku kerjain berminggu-minggu. Rasanya lega banget..."</div>
-        <div class="journal-card-ai">
-          <div class="journal-card-ai-icon">✨</div>
-          <div class="journal-card-ai-text">Pencapaian ini bukan kebetulan — kamu yang membuatnya terjadi 💪</div>
-        </div>
-      </div>
-      <div class="journal-card-arrow">↗</div>
-    </div>
-
-    <!-- Journal Card 2 -->
-    <div class="journal-card" onclick="showScreen('screen-journal')" style="position:relative;">
-      <div class="journal-card-image jcard-bg-2">
-        <div class="journal-card-gradient"></div>
-        <div class="journal-card-mood-tag">😐 Biasa</div>
-        <div class="journal-card-date">5 hari lalu</div>
-      </div>
-      <div class="journal-card-body">
-        <div class="journal-card-preview">"Hari ini kerja banyak tapi ngerasa gak produktif. Entah kenapa semua terasa berat..."</div>
-        <div class="journal-card-ai">
-          <div class="journal-card-ai-icon">🤗</div>
-          <div class="journal-card-ai-text">Perasaan 'sibuk tapi gak produktif' itu nyata dan berat — kamu tidak sendiri</div>
-        </div>
-      </div>
-      <div class="journal-card-arrow">↗</div>
-    </div>
-
-  </div><!-- /screen-home -->
-
-
-  <!-- ===================== SCREEN 2: MOOD CHECK-IN ===================== -->
-  <div class="screen" id="screen-mood">
-    <div class="status-bar">
-      <span>9:41</span>
-      <span>📶 🔋</span>
-    </div>
-
-    <div style="padding: 0 24px 24px;">
-      <div class="back-btn" onclick="showScreen('screen-home')">←</div>
-      <div class="mood-screen-title">Bagaimana<br>perasaanmu hari ini?</div>
-      <div class="mood-screen-sub">Jujur aja, ini hanya untukmu 🤍</div>
-    </div>
-
-    <!-- Mood Scale -->
-    <div class="mood-scale-container">
-      <div class="mood-scale">
-        <div class="mood-scale-item" onclick="selectMood(this)">
-          <div class="mood-scale-emoji">😢</div>
-          <div class="mood-scale-label">Sangat<br>Sedih</div>
-        </div>
-        <div class="mood-scale-item" onclick="selectMood(this)">
-          <div class="mood-scale-emoji">😟</div>
-          <div class="mood-scale-label">Sedih</div>
-        </div>
-        <div class="mood-scale-item selected" onclick="selectMood(this)">
-          <div class="mood-scale-emoji">😐</div>
-          <div class="mood-scale-label">Biasa</div>
-        </div>
-        <div class="mood-scale-item" onclick="selectMood(this)">
-          <div class="mood-scale-emoji">🙂</div>
-          <div class="mood-scale-label">Senang</div>
-        </div>
-        <div class="mood-scale-item" onclick="selectMood(this)">
-          <div class="mood-scale-emoji">😄</div>
-          <div class="mood-scale-label">Sangat<br>Senang</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Tags -->
-    <div class="mood-tags-section">
-      <div class="mood-tags-title">Ada yang mempengaruhi? (opsional)</div>
-      <div class="mood-tags-grid">
-        <div class="mood-tag" onclick="toggleTag(this)">💼 Capek kerja</div>
-        <div class="mood-tag selected" onclick="toggleTag(this)">👨‍👩‍👧 Keluarga</div>
-        <div class="mood-tag" onclick="toggleTag(this)">❤️ Hubungan</div>
-        <div class="mood-tag" onclick="toggleTag(this)">🌿 Kesehatan</div>
-        <div class="mood-tag" onclick="toggleTag(this)">💰 Keuangan</div>
-        <div class="mood-tag" onclick="toggleTag(this)">🏆 Prestasi</div>
-        <div class="mood-tag" onclick="toggleTag(this)">+ Lainnya</div>
-      </div>
-    </div>
-
-    <!-- Note -->
-    <textarea class="note-input" placeholder="Ceritakan sedikit... (opsional)"></textarea>
-
-    <!-- CTA -->
-    <button class="primary-btn" onclick="showScreen('screen-saved')">
-      <span>Simpan Mood</span>
-      <span>✓</span>
+<!-- LOGIN -->
+<div class="screen" id="sl" style="padding-bottom:40px;">
+  <div class="sb"></div>
+  <div style="padding:0 24px 32px;">
+    <div class="back" style="margin-bottom:28px;" onclick="S('sw')">←</div>
+    <div style="font-size:32px;margin-bottom:10px;">✨</div>
+    <div style="font-size:26px;font-weight:700;color:var(--text);margin-bottom:6px;">Selamat datang</div>
+    <div style="font-size:15px;color:var(--muted);margin-bottom:40px;">Masuk untuk melanjutkan perjalananmu 🤍</div>
+    <button class="ab" style="margin-bottom:14px;" onclick="S('s1')">
+      <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.29-8.16 2.29-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+      Lanjut dengan Google
     </button>
-    <div style="text-align:center; padding: 14px; font-size:14px; color: var(--text-muted); font-weight:600; cursor:pointer;" onclick="showScreen('screen-home')">Lewati</div>
+    <button class="ab ms2" onclick="S('s1')">
+      <svg width="20" height="20" viewBox="0 0 21 21"><rect x="1" y="1" width="9" height="9" fill="#f25022"/><rect x="11" y="1" width="9" height="9" fill="#00a4ef"/><rect x="1" y="11" width="9" height="9" fill="#7fba00"/><rect x="11" y="11" width="9" height="9" fill="#ffb900"/></svg>
+      Lanjut dengan Microsoft
+    </button>
+  </div>
+  <div style="margin-top:auto;padding:24px;text-align:center;font-size:12px;color:var(--muted);line-height:1.6;">Dengan masuk, kamu menyetujui <span style="color:var(--warm);">Syarat &amp; Ketentuan</span> dan <span style="color:var(--warm);">Kebijakan Privasi</span> kami.</div>
+</div>
 
-  </div><!-- /screen-mood -->
+<!-- OB1 -->
+<div class="screen" id="s1" style="padding-bottom:40px;">
+  <div class="sb"></div>
+  <div class="pr"><div class="dots"><div class="dot on"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div><div class="skip" onclick="S('s7')">Lewati</div></div>
+  <div style="margin:0 24px 24px;height:200px;background:linear-gradient(135deg,var(--warm-light),var(--calm-light));border-radius:24px;display:flex;align-items:center;justify-content:center;font-size:80px;">🌟</div>
+  <div style="padding:0 24px;font-size:26px;font-weight:700;color:var(--text);line-height:1.25;margin-bottom:8px;">Mulai refleksi harianmu 🌟</div>
+  <div style="padding:0 24px;font-size:15px;color:var(--muted);line-height:1.6;margin-bottom:28px;">Rasakan bedanya dalam 7 hari pertama</div>
+  <div style="padding:0 24px;display:flex;flex-direction:column;gap:12px;margin-bottom:32px;">
+    <div style="display:flex;align-items:center;gap:14px;"><div style="width:44px;height:44px;border-radius:12px;background:var(--warm-light);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">✨</div><div><div style="font-size:14px;font-weight:700;color:var(--text);">AI companion yang mendengarkan</div><div style="font-size:12px;color:var(--muted);">Seperti teman yang selalu ada</div></div></div>
+    <div style="display:flex;align-items:center;gap:14px;"><div style="width:44px;height:44px;border-radius:12px;background:var(--calm-light);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">📊</div><div><div style="font-size:14px;font-weight:700;color:var(--text);">Insight pola emosi mingguanmu</div><div style="font-size:12px;color:var(--muted);">Kenali dirimu lebih dalam</div></div></div>
+    <div style="display:flex;align-items:center;gap:14px;"><div style="width:44px;height:44px;border-radius:12px;background:rgba(107,174,140,0.15);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">🔥</div><div><div style="font-size:14px;font-weight:700;color:var(--text);">Streak harian yang menyemangati</div><div style="font-size:12px;color:var(--muted);">Bangun kebiasaan refleksi</div></div></div>
+  </div>
+  <button class="btn btnw" onclick="S('s2')">Mulai →</button>
+</div>
 
-
-  <!-- ===================== SCREEN 3: MOOD SAVED ===================== -->
-  <div class="screen" id="screen-saved" style="justify-content:center; align-items:center; text-align:center; padding: 40px 24px;">
-    <div class="status-bar" style="position:absolute; top:0; left:0; right:0;">
-      <span>9:41</span>
-      <span>📶 🔋</span>
+<!-- OB2 -->
+<div class="screen" id="s2" style="padding-bottom:40px;">
+  <div class="sb"></div>
+  <div class="pr"><div class="dots"><div class="dot on"></div><div class="dot on"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div><div class="skip" onclick="S('s7')">Lewati</div></div>
+  <div style="padding:0 24px;font-size:24px;font-weight:700;color:var(--text);margin-bottom:6px;">Apa tujuan utamamu?</div>
+  <div style="padding:0 24px;font-size:14px;color:var(--muted);margin-bottom:24px;">Pilih satu yang paling kamu rasakan</div>
+  <div style="padding:0 24px;display:flex;flex-direction:column;gap:12px;margin-bottom:32px;">
+    <div style="border-radius:var(--r);border:2px solid var(--warm);background:var(--warm-light);padding:18px 20px;display:flex;align-items:center;gap:16px;cursor:pointer;">
+      <div style="font-size:32px;">🧘</div><div style="flex:1;"><div style="font-size:15px;font-weight:700;color:var(--text);">Ketenangan Mental</div><div style="font-size:12px;color:var(--muted);">Kurangi stress &amp; kecemasan</div></div>
+      <div style="width:22px;height:22px;border-radius:50%;background:var(--warm);display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;flex-shrink:0;">✓</div>
     </div>
-
-    <div style="display:flex; flex-direction:column; align-items:center; gap:0; margin-top:60px;">
-      <div class="saved-lottie">✓</div>
-      <div class="saved-title">Mood Tersimpan! 🎉</div>
-      <div class="saved-subtitle" style="margin-top:10px;">Mau cerita lebih? AI temanmu sudah siap mendengarkan dengan penuh perhatian.</div>
-
-      <div style="width:100%; margin-top:20px;">
-        <!-- AI preview bubble -->
-        <div style="background:var(--surface); border-radius:20px; border-bottom-left-radius:6px; padding:16px 18px; margin-bottom:20px; box-shadow:var(--shadow-card); text-align:left;">
-          <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
-            <div class="ai-avatar" style="width:32px;height:32px;font-size:14px;">✨</div>
-            <div style="font-size:13px; font-weight:700; color:var(--text-primary);">Reflect AI</div>
-            <div style="font-size:11px; color:var(--mood-great); font-weight:600;">● Online</div>
-          </div>
-          <div style="font-size:14px; color:var(--text-primary); line-height:1.6; font-family:var(--font-main);">
-            "Hai! Aku lihat hari ini kamu merasa biasa aja 😊 Terkadang hari yang 'biasa' justru punya banyak cerita menarik. Ada yang pengen kamu ceritain?"
-          </div>
-        </div>
-
-        <button class="primary-btn" onclick="showScreen('screen-journal')" style="margin:0;">
-          <span>Mulai Jurnal</span>
-          <span>✍️</span>
-        </button>
-        <div class="ghost-btn" onclick="showScreen('screen-home')">Nanti aja</div>
-      </div>
+    <div style="border-radius:var(--r);border:1.5px solid var(--border);background:var(--surface);padding:18px 20px;display:flex;align-items:center;gap:16px;cursor:pointer;">
+      <div style="font-size:32px;">⚡</div><div style="flex:1;"><div style="font-size:15px;font-weight:700;color:var(--text);">Produktivitas</div><div style="font-size:12px;color:var(--muted);">Tingkatkan fokus &amp; motivasi</div></div>
+      <div style="width:22px;height:22px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;"></div>
     </div>
-  </div><!-- /screen-saved -->
-
-
-  <!-- ===================== SCREEN 4: JOURNAL SESSION ===================== -->
-  <div class="screen" id="screen-journal">
-    <div class="status-bar">
-      <span>9:41</span>
-      <span>📶 🔋</span>
-    </div>
-
-    <!-- Journal Header -->
-    <div class="journal-header">
-      <div class="back-btn" onclick="showScreen('screen-home')" style="margin-bottom:0;">←</div>
-      <div class="ai-avatar">✨</div>
-      <div class="journal-header-info">
-        <div class="journal-header-name">Reflect AI</div>
-        <div class="journal-header-status">● Siap mendengarkan</div>
-      </div>
-      <div style="font-size:20px; cursor:pointer;">⋯</div>
-    </div>
-
-    <!-- Session Info -->
-    <div class="session-info-chip">
-      <span style="font-size:16px;">😐</span>
-      <div class="session-info-text">Mood hari ini: Biasa • Keluarga</div>
-      <div class="free-usage">
-        <div class="free-usage-bar"><div class="free-usage-fill"></div></div>
-        <div class="free-usage-text">2/3</div>
-      </div>
-    </div>
-
-    <!-- Chat -->
-    <div class="chat-container">
-      <div class="chat-bubble ai">
-        Hai! Aku lihat hari ini kamu merasa biasa aja 😊<br><br>
-        Terkadang hari yang 'biasa' justru punya banyak hal menarik kalau kita perhatiin. Ada yang pengen kamu ceritain hari ini?
-      </div>
-
-      <div class="chat-bubble user">
-        Hari ini kerja banyak, tapi ngerasa gak produktif. Semua terasa berat entah kenapa.
-      </div>
-
-      <div class="chat-bubble ai">
-        Hmm, perasaan 'sibuk tapi gak produktif' itu berat banget ya... 😔<br><br>
-        Kira-kira ada gak satu hal yang bikin kamu ngerasa paling terganggu hari ini?
-      </div>
-
-      <div class="typing-indicator">
-        <div class="typing-dot"></div>
-        <div class="typing-dot"></div>
-        <div class="typing-dot"></div>
-      </div>
-    </div>
-
-    <!-- Chat Input -->
-    <div class="chat-input-area" style="margin-bottom:24px;">
-      <input class="chat-input-field" placeholder="Cerita apa aja, aku dengerin..." />
-      <div class="chat-send-btn">↑</div>
-    </div>
-
-  </div><!-- /screen-journal -->
-
-  <!-- Tab Bar -->
-  <div class="tab-bar">
-    <div class="tab-item active" id="tab-home" onclick="showScreen('screen-home'); setActiveTab('tab-home')">
-      <span class="tab-icon">🏠</span>
-      <span class="tab-label">Today</span>
-    </div>
-    <div class="tab-item" id="tab-journal" onclick="showScreen('screen-journal'); setActiveTab('tab-journal')">
-      <span class="tab-icon">📓</span>
-      <span class="tab-label">Jurnal</span>
-    </div>
-    <div class="tab-item" id="tab-insights">
-      <span class="tab-icon">📊</span>
-      <span class="tab-label">Insights</span>
-    </div>
-    <div class="tab-item" id="tab-profile">
-      <span class="tab-icon">👤</span>
-      <span class="tab-label">Profil</span>
+    <div style="border-radius:var(--r);border:1.5px solid var(--border);background:var(--surface);padding:18px 20px;display:flex;align-items:center;gap:16px;cursor:pointer;">
+      <div style="font-size:32px;">🌙</div><div style="flex:1;"><div style="font-size:15px;font-weight:700;color:var(--text);">Tidur Lebih Baik</div><div style="font-size:12px;color:var(--muted);">Pola tidur yang lebih sehat</div></div>
+      <div style="width:22px;height:22px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;"></div>
     </div>
   </div>
+  <button class="btn btnw" onclick="S('s3')">Lanjut →</button>
+</div>
 
-</div><!-- /phone -->
+<!-- OB3 -->
+<div class="screen" id="s3" style="padding-bottom:40px;">
+  <div class="sb"></div>
+  <div class="pr"><div class="dots"><div class="dot on"></div><div class="dot on"></div><div class="dot on"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div><div class="skip" onclick="S('s7')">Lewati</div></div>
+  <div style="padding:0 24px;font-size:24px;font-weight:700;color:var(--text);margin-bottom:6px;">Seberapa sering kamu mau journaling?</div>
+  <div style="padding:0 24px;font-size:14px;color:var(--muted);margin-bottom:28px;">Tidak ada yang salah, semua oke 🤍</div>
+  <div style="padding:0 24px;display:flex;flex-direction:column;gap:12px;margin-bottom:32px;">
+    <div style="border-radius:var(--r);border:2px solid var(--warm);background:var(--warm-light);padding:16px 20px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;"><span style="font-size:15px;font-weight:700;color:var(--text);">Setiap hari ✨</span><span style="width:16px;height:16px;border-radius:50%;background:var(--warm);display:block;"></span></div>
+    <div style="border-radius:var(--r);border:1.5px solid var(--border);background:var(--surface);padding:16px 20px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;"><span style="font-size:15px;font-weight:600;color:var(--text);">3-4x seminggu</span><span style="width:16px;height:16px;border-radius:50%;border:2px solid var(--border);display:block;"></span></div>
+    <div style="border-radius:var(--r);border:1.5px solid var(--border);background:var(--surface);padding:16px 20px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;"><span style="font-size:15px;font-weight:600;color:var(--text);">Kalau lagi mau aja</span><span style="width:16px;height:16px;border-radius:50%;border:2px solid var(--border);display:block;"></span></div>
+  </div>
+  <button class="btn btnw" onclick="S('s4')">Lanjut →</button>
+</div>
 
-<!-- Demo Nav -->
-<div class="demo-nav">
-  <button class="demo-btn active-screen" id="nav-home" onclick="showScreen('screen-home')">🏠 Home</button>
-  <button class="demo-btn" id="nav-mood" onclick="showScreen('screen-mood')">😊 Mood</button>
-  <button class="demo-btn" id="nav-saved" onclick="showScreen('screen-saved')">✓ Saved</button>
-  <button class="demo-btn" id="nav-journal" onclick="showScreen('screen-journal')">✍️ Journal</button>
+<!-- OB4 -->
+<div class="screen" id="s4" style="padding-bottom:40px;">
+  <div class="sb"></div>
+  <div class="pr"><div class="dots"><div class="dot on"></div><div class="dot on"></div><div class="dot on"></div><div class="dot on"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div><div class="skip" onclick="S('s7')">Lewati</div></div>
+  <div style="padding:0 24px;font-size:24px;font-weight:700;color:var(--text);margin-bottom:6px;">Kapan kamu biasanya punya waktu?</div>
+  <div style="padding:0 24px;font-size:14px;color:var(--muted);margin-bottom:28px;">Biar kita ingetin di waktu yang pas</div>
+  <div style="padding:0 24px;display:flex;gap:10px;margin-bottom:24px;">
+    <div style="flex:1;border-radius:var(--r);border:2px solid var(--warm);background:var(--warm-light);padding:18px 10px;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;"><span style="font-size:28px;">🌅</span><span style="font-size:14px;font-weight:700;color:var(--text);">Pagi</span><span style="font-size:11px;color:var(--muted);">06:00–09:00</span></div>
+    <div style="flex:1;border-radius:var(--r);border:1.5px solid var(--border);background:var(--surface);padding:18px 10px;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;"><span style="font-size:28px;">🌙</span><span style="font-size:14px;font-weight:700;color:var(--text);">Malam</span><span style="font-size:11px;color:var(--muted);">20:00–22:00</span></div>
+    <div style="flex:1;border-radius:var(--r);border:1.5px solid var(--border);background:var(--surface);padding:18px 10px;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;"><span style="font-size:28px;">☀️</span><span style="font-size:14px;font-weight:700;color:var(--text);">Keduanya</span><span style="font-size:11px;color:var(--muted);">Fleksibel</span></div>
+  </div>
+  <div style="margin:0 24px 32px;background:var(--surface);border-radius:var(--r);padding:16px 20px;box-shadow:var(--cs);display:flex;align-items:center;justify-content:space-between;border:1px solid var(--border);">
+    <div style="font-size:14px;font-weight:700;color:var(--text);">🔔 Pengingat</div>
+    <div style="display:flex;align-items:center;gap:12px;"><div style="font-size:22px;font-weight:800;color:var(--warm);">08:00</div><div style="display:flex;flex-direction:column;gap:3px;"><div style="font-size:14px;color:var(--muted);cursor:pointer;">▲</div><div style="font-size:14px;color:var(--muted);cursor:pointer;">▼</div></div></div>
+  </div>
+  <button class="btn btnw" onclick="S('s5')">Lanjut →</button>
+</div>
+
+<!-- OB5 -->
+<div class="screen" id="s5" style="padding-bottom:40px;">
+  <div class="sb"></div>
+  <div class="pr"><div class="dots"><div class="dot on"></div><div class="dot on"></div><div class="dot on"></div><div class="dot on"></div><div class="dot on"></div><div class="dot"></div><div class="dot"></div></div><div class="skip" onclick="S('s7')">Lewati</div></div>
+  <div style="padding:0 24px;font-size:24px;font-weight:700;color:var(--text);margin-bottom:6px;">Rencanamu sudah siap! 🎉</div>
+  <div style="padding:0 24px;font-size:14px;color:var(--muted);margin-bottom:24px;">Ini personalized khusus buat kamu</div>
+  <div style="margin:0 24px 24px;background:linear-gradient(135deg,var(--warm),#B85C34);border-radius:20px;padding:22px;color:#fff;">
+    <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.2);"><span style="font-size:13px;opacity:.75;">Tujuan</span><span style="font-size:13px;font-weight:700;">Ketenangan Mental</span></div>
+    <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.2);"><span style="font-size:13px;opacity:.75;">Jadwal</span><span style="font-size:13px;font-weight:700;">Setiap hari, pagi</span></div>
+    <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.2);"><span style="font-size:13px;opacity:.75;">Target awal</span><span style="font-size:13px;font-weight:700;">7 hari streak</span></div>
+    <div style="display:flex;justify-content:space-between;padding:10px 0;"><span style="font-size:13px;opacity:.75;">AI Memory</span><span style="font-size:13px;font-weight:700;">✓ Aktif</span></div>
+  </div>
+  <div style="padding:0 24px;display:flex;gap:8px;margin-bottom:32px;overflow-x:auto;scrollbar-width:none;">
+    <div style="background:rgba(107,174,140,0.15);border:1px solid var(--great);border-radius:var(--pill);padding:7px 14px;font-size:12px;font-weight:700;color:var(--great);white-space:nowrap;">✓ Gratis 7 hari</div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--pill);padding:7px 14px;font-size:12px;font-weight:700;color:var(--muted);white-space:nowrap;">Batal kapan saja</div>
+    <div style="background:var(--calm-light);border:1px solid var(--calm);border-radius:var(--pill);padding:7px 14px;font-size:12px;font-weight:700;color:var(--calm);white-space:nowrap;">100% privat</div>
+  </div>
+  <button class="btn btnw" onclick="S('s6')">Mulai sekarang 🚀</button>
+</div>
+
+<!-- OB6 -->
+<div class="screen" id="s6" style="padding-bottom:40px;">
+  <div class="sb"></div>
+  <div class="pr"><div class="dots"><div class="dot on"></div><div class="dot on"></div><div class="dot on"></div><div class="dot on"></div><div class="dot on"></div><div class="dot on"></div><div class="dot"></div></div><div class="skip" onclick="S('s7')">Lewati</div></div>
+  <div style="padding:0 24px;font-size:22px;font-weight:700;color:var(--text);margin-bottom:6px;">Coba ngobrol dengan Reflect AI</div>
+  <div style="padding:0 24px;font-size:13px;color:var(--muted);margin-bottom:20px;">Satu percakapan gratis, sekarang ✨</div>
+  <div style="margin:0 24px;background:var(--surface);border-radius:20px;padding:18px;box-shadow:var(--cs);display:flex;flex-direction:column;gap:12px;margin-bottom:24px;">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;"><div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--calm),#2D5F6E);display:flex;align-items:center;justify-content:center;font-size:16px;">✨</div><div style="font-size:14px;font-weight:700;color:var(--text);">Reflect AI</div><div style="font-size:11px;color:var(--great);font-weight:700;">● Online</div></div>
+    <div class="b ai" style="max-width:90%;">Hei! Selamat datang 🌟 Gimana perasaan kamu hari ini?</div>
+    <div class="b u" style="margin-left:auto;">Agak capek, tapi excited nyoba app ini 😊</div>
+    <div class="b ai" style="max-width:90%;">Waah, capek tapi masih semangat — itu tanda kamu punya drive yang kuat! 💪</div>
+    <div class="typ"><div class="dtd"></div><div class="dtd"></div><div class="dtd"></div></div>
+  </div>
+  <button class="btn btnw" onclick="S('s7')" style="margin-bottom:12px;">Aku suka ini! Lanjut →</button>
+  <div style="text-align:center;font-size:13px;color:var(--muted);cursor:pointer;" onclick="S('s7')">Lanjut tanpa mencoba</div>
+</div>
+
+<!-- PAYWALL -->
+<div class="screen" id="s7" style="padding-bottom:40px;">
+  <div style="background:linear-gradient(135deg,var(--warm),#B85C34);padding:52px 24px 32px;border-radius:0 0 32px 32px;text-align:center;">
+    <div style="font-size:36px;margin-bottom:10px;">✨</div>
+    <div style="font-size:24px;font-weight:700;color:#fff;margin-bottom:6px;">Unlock Reflect Premium</div>
+    <div style="font-size:14px;color:rgba(255,255,255,0.8);">Mulai 7 hari gratis, batal kapan saja</div>
+  </div>
+  <div style="padding:24px;">
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:24px;">
+      <div style="display:flex;align-items:center;gap:12px;"><span style="font-size:18px;">🤖</span><span style="font-size:14px;font-weight:600;color:var(--text);">AI companion tanpa batas <span style="color:var(--muted);font-weight:400;">(gratis: 3x/minggu)</span></span></div>
+      <div style="display:flex;align-items:center;gap:12px;"><span style="font-size:18px;">🧠</span><span style="font-size:14px;font-weight:600;color:var(--text);">AI ingat perjalananmu</span></div>
+      <div style="display:flex;align-items:center;gap:12px;"><span style="font-size:18px;">📊</span><span style="font-size:14px;font-weight:600;color:var(--text);">Insights mendalam + mood heatmap</span></div>
+    </div>
+    <div style="position:relative;border-radius:var(--r);border:2px solid var(--warm);background:var(--warm-light);padding:18px 20px;margin-bottom:12px;cursor:pointer;">
+      <div style="position:absolute;top:-10px;right:16px;background:var(--warm);color:#fff;font-size:10px;font-weight:800;padding:3px 10px;border-radius:var(--pill);">TERBAIK</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div><div style="font-size:15px;font-weight:700;color:var(--text);">Tahunan</div><div style="font-size:12px;color:var(--muted);">Rp 24.900/bulan</div><div style="display:inline-block;background:rgba(107,174,140,0.2);color:var(--great);font-size:11px;font-weight:700;padding:2px 8px;border-radius:var(--pill);margin-top:4px;">Hemat 36%</div></div>
+        <div style="text-align:right;"><div style="font-size:20px;font-weight:800;color:var(--text);">Rp 299.000</div><div style="font-size:11px;color:var(--muted);">/tahun</div></div>
+      </div>
+    </div>
+    <div style="border-radius:var(--r);border:1.5px solid var(--border);background:var(--surface);padding:16px 20px;margin-bottom:28px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;">
+      <div style="font-size:15px;font-weight:700;color:var(--text);">Bulanan</div>
+      <div style="font-size:18px;font-weight:800;color:var(--text);">Rp 39.000<span style="font-size:12px;color:var(--muted);font-weight:400;">/bulan</span></div>
+    </div>
+    <button class="btn btnw" onclick="S('sh')" style="margin-bottom:10px;">Coba Gratis 7 Hari →</button>
+    <div style="text-align:center;font-size:11px;color:var(--muted);margin-bottom:16px;">Tidak ada biaya sampai hari ke-8. Batal kapan saja.</div>
+    <div style="text-align:center;font-size:14px;color:var(--muted);cursor:pointer;" onclick="S('sh')">Nanti saja</div>
+  </div>
+</div>
+
+<!-- HOME -->
+<div class="screen pbt" id="sh">
+  <div class="sb"></div>
+  <div style="padding:0 24px 20px;display:flex;justify-content:space-between;align-items:center;">
+    <div style="display:flex;align-items:center;gap:12px;"><div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--warm),#C0A882);display:flex;align-items:center;justify-content:center;font-size:20px;">🌿</div><div><div style="font-size:16px;font-weight:700;color:var(--text);">Darwin</div><div style="font-size:12px;color:var(--muted);">Selamat pagi ✨</div></div></div>
+    <div style="width:44px;height:44px;border-radius:50%;background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:var(--cs);position:relative;cursor:pointer;">🔔<div style="position:absolute;top:10px;right:10px;width:8px;height:8px;background:var(--warm);border-radius:50%;border:2px solid var(--bg);"></div></div>
+  </div>
+  <div style="padding:0 24px 22px;"><div style="font-size:26px;font-weight:700;color:var(--text);line-height:1.25;margin-bottom:6px;">Bagaimana perasaanmu<br>hari ini? 💭</div><div style="font-size:14px;color:var(--muted);">Luangkan 2 menit untuk refleksi diri</div></div>
+  <div style="margin:0 24px 24px;background:linear-gradient(135deg,var(--warm),#C0603A);border-radius:20px;padding:22px 24px;position:relative;overflow:hidden;cursor:pointer;box-shadow:0 8px 32px rgba(212,114,74,0.35);" onclick="S('sm')">
+    <div style="position:absolute;right:-20px;top:-20px;width:120px;height:120px;background:rgba(255,255,255,0.1);border-radius:50%;"></div>
+    <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.75);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">Cek Harian</div>
+    <div style="font-size:20px;font-weight:700;color:#fff;margin-bottom:16px;line-height:1.3;">Mulai refleksi<br>harianmu</div>
+    <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,0.2);border:1.5px solid rgba(255,255,255,0.4);border-radius:var(--pill);padding:10px 20px;color:#fff;font-size:14px;font-weight:600;">Cek Mood Sekarang →</div>
+  </div>
+  <div style="padding:0 24px;margin-bottom:24px;"><div style="display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,#FF8C42,#FF5C1A);border-radius:var(--pill);padding:6px 14px;box-shadow:0 4px 12px rgba(255,92,26,0.3);"><span style="font-size:16px;">🔥</span><span style="font-size:13px;font-weight:700;color:#fff;">7 hari berturut-turut</span></div></div>
+  <div class="sh"><div class="st">Mood Minggu Ini</div><div class="sl">Lihat Semua</div></div>
+  <div style="display:flex;gap:14px;padding:0 24px;overflow-x:auto;scrollbar-width:none;margin-bottom:28px;">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex-shrink:0;"><div style="width:56px;height:56px;border-radius:50%;background:#E8F4F0;display:flex;align-items:center;justify-content:center;font-size:24px;box-shadow:var(--cs);">😄</div><div style="font-size:11px;color:var(--muted);font-weight:600;">Senin</div><div style="font-size:10px;color:var(--great);font-weight:600;">Great</div></div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex-shrink:0;"><div style="width:56px;height:56px;border-radius:50%;background:#EFF5E8;display:flex;align-items:center;justify-content:center;font-size:24px;box-shadow:var(--cs);">🙂</div><div style="font-size:11px;color:var(--muted);font-weight:600;">Selasa</div><div style="font-size:10px;color:var(--good);font-weight:600;">Good</div></div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex-shrink:0;"><div style="width:56px;height:56px;border-radius:50%;background:#FEF9E0;display:flex;align-items:center;justify-content:center;font-size:24px;box-shadow:var(--cs);">😐</div><div style="font-size:11px;color:var(--muted);font-weight:600;">Rabu</div><div style="font-size:10px;color:var(--okay);font-weight:600;">Okay</div></div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex-shrink:0;"><div style="width:56px;height:56px;border-radius:50%;background:#FEF0E8;display:flex;align-items:center;justify-content:center;font-size:24px;box-shadow:var(--cs);">😟</div><div style="font-size:11px;color:var(--muted);font-weight:600;">Kamis</div><div style="font-size:10px;color:var(--bad);font-weight:600;">Low</div></div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex-shrink:0;"><div style="width:56px;height:56px;border-radius:50%;background:#E8F4F0;display:flex;align-items:center;justify-content:center;font-size:24px;box-shadow:var(--cs);">😄</div><div style="font-size:11px;color:var(--muted);font-weight:600;">Jumat</div><div style="font-size:10px;color:var(--great);font-weight:600;">Great</div></div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex-shrink:0;"><div style="width:56px;height:56px;border-radius:50%;background:#F0F0F0;border:2px dashed #DDD;display:flex;align-items:center;justify-content:center;font-size:24px;">❓</div><div style="font-size:11px;color:var(--muted);font-weight:600;">Sabtu</div><div style="font-size:10px;color:var(--light);">—</div></div>
+  </div>
+  <div class="sh"><div class="st">Refleksi Terbaru</div><div class="sl">Lihat Semua</div></div>
+  <div class="jc" onclick="S('sj')"><div class="ji" style="background:linear-gradient(135deg,#B8D4C8,#7BAAA0);"><div class="jg"></div><div class="jm">😄 Sangat Senang</div><div class="jd">2 hari lalu</div></div><div class="jb"><div class="jp">"Akhirnya selesai juga project yang udah aku kerjain berminggu-minggu. Rasanya lega banget..."</div><div class="ja"><span style="font-size:14px;flex-shrink:0;">✨</span><div class="jat">Pencapaian ini bukan kebetulan — kamu yang membuatnya terjadi 💪</div></div></div><div class="jarr">↗</div></div>
+  <div class="jc" onclick="S('sj')" style="margin-bottom:8px;"><div class="ji" style="background:linear-gradient(135deg,#D4B8A0,#B08060);"><div class="jg"></div><div class="jm">😐 Biasa</div><div class="jd">5 hari lalu</div></div><div class="jb"><div class="jp">"Hari ini kerja banyak tapi ngerasa gak produktif. Entah kenapa semua terasa berat..."</div><div class="ja"><span style="font-size:14px;flex-shrink:0;">🤗</span><div class="jat">Perasaan 'sibuk tapi gak produktif' itu nyata — kamu tidak sendiri</div></div></div><div class="jarr">↗</div></div>
+</div>
+
+<!-- MOOD CHECK-IN -->
+<div class="screen" id="sm" style="padding-bottom:40px;">
+  <div class="sb"></div>
+  <div style="padding:0 24px 20px;"><div class="back" style="margin-bottom:20px;" onclick="S('sh')">←</div><div style="font-size:24px;font-weight:700;color:var(--text);line-height:1.3;margin-bottom:8px;">Bagaimana<br>perasaanmu hari ini?</div><div style="font-size:14px;color:var(--muted);">Jujur aja, ini hanya untukmu 🤍</div></div>
+  <div class="ms" style="margin-bottom:24px;">
+    <div class="mi" onclick="selMood(this)"><div class="me">😢</div><div class="ml">Sangat<br>Sedih</div></div>
+    <div class="mi" onclick="selMood(this)"><div class="me">😟</div><div class="ml">Sedih</div></div>
+    <div class="mi on" onclick="selMood(this)"><div class="me">😐</div><div class="ml">Biasa</div></div>
+    <div class="mi" onclick="selMood(this)"><div class="me">🙂</div><div class="ml">Senang</div></div>
+    <div class="mi" onclick="selMood(this)"><div class="me">😄</div><div class="ml">Sangat<br>Senang</div></div>
+  </div>
+  <div style="padding:0 24px;margin-bottom:28px;"><div style="font-size:16px;font-weight:700;color:var(--text);margin-bottom:14px;">Ada yang mempengaruhi? <span style="font-weight:400;color:var(--muted);font-size:13px;">(opsional)</span></div><div style="display:flex;flex-wrap:wrap;gap:10px;"><div class="tg" onclick="togTag(this)">💼 Capek kerja</div><div class="tg on" onclick="togTag(this)">👨‍👩‍👧 Keluarga</div><div class="tg" onclick="togTag(this)">❤️ Hubungan</div><div class="tg" onclick="togTag(this)">🌿 Kesehatan</div><div class="tg" onclick="togTag(this)">💰 Keuangan</div><div class="tg" onclick="togTag(this)">🏆 Prestasi</div></div></div>
+  <textarea style="margin:0 24px 28px;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);padding:16px;font-family:var(--j);font-size:15px;color:var(--text);width:calc(100% - 48px);height:80px;resize:none;outline:none;line-height:1.6;" placeholder="Ceritakan sedikit... (opsional)"></textarea>
+  <button class="btn" onclick="S('ss')" style="margin-bottom:12px;">Simpan Mood &nbsp;✓</button>
+  <div style="text-align:center;padding:12px;font-size:14px;color:var(--muted);font-weight:600;cursor:pointer;" onclick="S('sh')">Lewati</div>
+</div>
+
+<!-- MOOD SAVED -->
+<div class="screen" id="ss" style="justify-content:center;align-items:center;text-align:center;padding:40px 24px;">
+  <div class="sb" style="position:absolute;top:0;left:0;right:0;"></div>
+  <div style="display:flex;flex-direction:column;align-items:center;margin-top:60px;width:100%;">
+    <div style="width:120px;height:120px;border-radius:50%;background:linear-gradient(135deg,var(--great),#4CAF85);display:flex;align-items:center;justify-content:center;font-size:52px;margin-bottom:24px;box-shadow:0 12px 40px rgba(107,174,140,0.35);animation:bi .6s cubic-bezier(.34,1.56,.64,1);">✓</div>
+    <div style="font-size:26px;font-weight:700;color:var(--text);margin-bottom:10px;">Mood Tersimpan! 🎉</div>
+    <div style="font-size:15px;color:var(--muted);line-height:1.6;margin-bottom:28px;max-width:260px;">Mau cerita lebih? AI temanmu sudah siap mendengarkan.</div>
+    <div style="width:100%;background:var(--surface);border-radius:20px;border-bottom-left-radius:6px;padding:16px 18px;margin-bottom:20px;box-shadow:var(--cs);text-align:left;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;"><div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--calm),#2D5F6E);display:flex;align-items:center;justify-content:center;font-size:14px;">✨</div><div style="font-size:13px;font-weight:700;color:var(--text);">Reflect AI</div><div style="font-size:11px;color:var(--great);font-weight:600;">● Online</div></div>
+      <div style="font-size:14px;color:var(--text);line-height:1.6;">"Hai! Aku lihat hari ini kamu merasa biasa aja 😊 Ada yang pengen kamu ceritain?"</div>
+    </div>
+    <button class="btn btnw" onclick="S('sj')" style="margin-bottom:12px;width:100%;">Mulai Jurnal ✍️</button>
+    <div style="font-size:14px;color:var(--muted);cursor:pointer;padding:12px;" onclick="S('sh')">Nanti aja</div>
+  </div>
+</div>
+
+<!-- JOURNAL LIST -->
+<div class="screen pbt" id="sjl">
+  <div class="sb"></div>
+  <div style="padding:0 24px 16px;display:flex;justify-content:space-between;align-items:center;"><div style="font-size:28px;font-weight:700;color:var(--text);">Jurnalku</div><div style="width:44px;height:44px;border-radius:50%;background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:var(--cs);cursor:pointer;">🔍</div></div>
+  <div style="padding:0 24px;display:flex;gap:10px;margin-bottom:20px;">
+    <div style="flex:1;background:var(--surface);border-radius:14px;padding:12px;box-shadow:var(--cs);text-align:center;border:1px solid var(--border);"><div style="font-size:18px;font-weight:800;color:var(--text);">24</div><div style="font-size:10px;color:var(--muted);font-weight:600;">Entri</div></div>
+    <div style="flex:1;background:var(--surface);border-radius:14px;padding:12px;box-shadow:var(--cs);text-align:center;border:1px solid var(--border);"><div style="font-size:18px;font-weight:800;color:var(--text);">😊 4.2</div><div style="font-size:10px;color:var(--muted);font-weight:600;">Avg Mood</div></div>
+    <div style="flex:1;background:var(--surface);border-radius:14px;padding:12px;box-shadow:var(--cs);text-align:center;border:1px solid var(--border);"><div style="font-size:18px;font-weight:800;color:var(--text);">🔥 7</div><div style="font-size:10px;color:var(--muted);font-weight:600;">Streak</div></div>
+  </div>
+  <div style="display:flex;gap:8px;padding:0 24px;overflow-x:auto;scrollbar-width:none;margin-bottom:20px;">
+    <div style="background:var(--text);color:#fff;border-radius:var(--pill);padding:8px 16px;font-size:13px;font-weight:700;white-space:nowrap;cursor:pointer;">Semua</div>
+    <div style="background:var(--surface);border:1.5px solid var(--border);color:var(--muted);border-radius:var(--pill);padding:8px 16px;font-size:13px;font-weight:600;white-space:nowrap;cursor:pointer;">😊 Senang</div>
+    <div style="background:var(--surface);border:1.5px solid var(--border);color:var(--muted);border-radius:var(--pill);padding:8px 16px;font-size:13px;font-weight:600;white-space:nowrap;cursor:pointer;">😐 Biasa</div>
+    <div style="background:var(--surface);border:1.5px solid var(--border);color:var(--muted);border-radius:var(--pill);padding:8px 16px;font-size:13px;font-weight:600;white-space:nowrap;cursor:pointer;">😢 Sedih</div>
+  </div>
+  <div class="jc" onclick="S('sj')"><div class="ji" style="background:linear-gradient(135deg,#B8D4C8,#7BAAA0);"><div class="jg"></div><div class="jm">😄 Sangat Senang</div><div class="jd">2 hari lalu</div></div><div class="jb"><div class="jp">"Akhirnya selesai juga project yang udah aku kerjain berminggu-minggu. Rasanya lega banget..."</div><div class="ja"><span style="font-size:14px;flex-shrink:0;">✨</span><div class="jat">Pencapaian ini bukan kebetulan — kamu yang membuatnya terjadi 💪</div></div></div><div class="jarr">↗</div></div>
+  <div class="jc" onclick="S('sj')"><div class="ji" style="background:linear-gradient(135deg,#D4B8A0,#B08060);"><div class="jg"></div><div class="jm">😐 Biasa</div><div class="jd">5 hari lalu</div></div><div class="jb"><div class="jp">"Hari ini kerja banyak tapi ngerasa gak produktif. Entah kenapa semua terasa berat..."</div><div class="ja"><span style="font-size:14px;flex-shrink:0;">🤗</span><div class="jat">Perasaan 'sibuk tapi gak produktif' itu nyata — kamu tidak sendiri</div></div></div><div class="jarr">↗</div></div>
+  <div class="jc" onclick="S('sj')" style="margin-bottom:8px;"><div class="ji" style="background:linear-gradient(135deg,#C8B8D4,#9878B4);"><div class="jg"></div><div class="jm">😄 Senang</div><div class="jd">1 minggu lalu</div></div><div class="jb"><div class="jp">"Weekend kemarin quality time sama keluarga. Hati rasanya penuh dan tenang..."</div><div class="ja"><span style="font-size:14px;flex-shrink:0;">💜</span><div class="jat">Waktu bersama orang tersayang = pengisi energi terkuat 🌸</div></div></div><div class="jarr">↗</div></div>
+</div>
+
+<!-- JOURNAL SESSION -->
+<div class="screen" id="sj" style="padding-bottom:30px;">
+  <div class="sb"></div>
+  <div style="padding:0 24px 14px;display:flex;align-items:center;gap:14px;"><div class="back" style="flex-shrink:0;" onclick="S('sh')">←</div><div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--calm),#2D5F6E);display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 4px 12px rgba(74,125,140,0.3);flex-shrink:0;">✨</div><div style="flex:1;"><div style="font-size:16px;font-weight:700;color:var(--text);">Reflect AI</div><div style="font-size:12px;color:var(--great);font-weight:600;">● Siap mendengarkan</div></div><div style="font-size:20px;cursor:pointer;color:var(--muted);">⋯</div></div>
+  <div style="margin:0 24px 18px;background:var(--warm-light);border-radius:12px;padding:12px 16px;display:flex;align-items:center;gap:10px;border:1px solid rgba(212,114,74,0.15);"><span style="font-size:16px;">😐</span><div style="font-size:13px;color:var(--warm);font-weight:600;flex:1;">Mood hari ini: Biasa • Keluarga</div><div style="display:flex;align-items:center;gap:6px;"><div style="width:50px;height:4px;background:rgba(212,114,74,0.2);border-radius:2px;overflow:hidden;"><div style="width:66%;height:100%;background:var(--warm);border-radius:2px;"></div></div><div style="font-size:11px;color:var(--warm);font-weight:700;">2/3</div></div></div>
+  <div class="cw">
+    <div class="b ai">Hai! Aku lihat hari ini kamu merasa biasa aja 😊<br><br>Ada yang pengen kamu ceritain hari ini?</div>
+    <div class="b u">Hari ini kerja banyak, tapi ngerasa gak produktif. Semua terasa berat entah kenapa.</div>
+    <div class="b ai">Hmm, perasaan 'sibuk tapi gak produktif' itu berat banget ya... 😔<br><br>Kira-kira ada gak satu hal yang bikin kamu paling terganggu hari ini?</div>
+    <div class="typ"><div class="dtd"></div><div class="dtd"></div><div class="dtd"></div></div>
+  </div>
+  <div class="ci" style="margin-bottom:24px;"><input class="cf" placeholder="Cerita apa aja, aku dengerin..."/><div class="sb2">↑</div></div>
+</div>
+
+<!-- INSIGHTS -->
+<div class="screen pbt" id="si">
+  <div class="sb"></div>
+  <div style="padding:0 24px 16px;font-size:28px;font-weight:700;color:var(--text);">Insights</div>
+  <div style="padding:0 24px;display:flex;gap:8px;margin-bottom:20px;"><div style="background:var(--text);color:#fff;border-radius:var(--pill);padding:8px 20px;font-size:13px;font-weight:700;cursor:pointer;">Minggu Ini</div><div style="background:var(--surface);border:1.5px solid var(--border);color:var(--muted);border-radius:var(--pill);padding:8px 20px;font-size:13px;font-weight:600;cursor:pointer;">Bulan Ini</div></div>
+  <div style="margin:0 24px 16px;background:var(--surface);border-radius:var(--r);padding:20px;box-shadow:var(--cs);">
+    <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:16px;">Mood Minggu Ini</div>
+    <div class="bc">
+      <div class="bco"><div class="bar" style="height:85%;background:var(--great);"></div><div class="bdy">Sen</div></div>
+      <div class="bco"><div class="bar" style="height:70%;background:var(--good);"></div><div class="bdy">Sel</div></div>
+      <div class="bco"><div class="bar" style="height:50%;background:var(--okay);"></div><div class="bdy">Rab</div></div>
+      <div class="bco"><div class="bar" style="height:30%;background:var(--bad);"></div><div class="bdy">Kam</div></div>
+      <div class="bco"><div class="bar" style="height:85%;background:var(--great);"></div><div class="bdy">Jum</div></div>
+      <div class="bco"><div class="bar" style="height:10%;background:var(--border);border-radius:6px;border:2px dashed #DDD;"></div><div class="bdy">Sab</div></div>
+      <div class="bco"><div class="bar" style="height:10%;background:var(--border);border-radius:6px;border:2px dashed #DDD;"></div><div class="bdy">Min</div></div>
+    </div>
+    <div style="margin-top:12px;font-size:12px;color:var(--muted);">Rata-rata: 😊 4.2 / 5.0</div>
+  </div>
+  <div style="padding:0 24px;margin-bottom:8px;font-size:17px;font-weight:700;color:var(--text);">Pola Minggu Ini</div>
+  <div style="margin:0 24px 10px;background:var(--surface);border-radius:var(--r);padding:16px;box-shadow:var(--cs);border-left:4px solid var(--warm);"><div style="font-size:14px;color:var(--text);line-height:1.6;">😊 Kamu lebih bahagia di akhir minggu — Jumat &amp; Sabtu selalu di atas rata-rata</div></div>
+  <div style="margin:0 24px 20px;background:var(--surface);border-radius:var(--r);padding:16px;box-shadow:var(--cs);border-left:4px solid var(--calm);"><div style="font-size:14px;color:var(--text);line-height:1.6;">👨‍👩‍👧 Waktu bersama keluarga = mood +2 poin rata-rata</div></div>
+  <div style="margin:0 24px;background:var(--surface);border-radius:var(--r);padding:20px;box-shadow:var(--cs);margin-bottom:8px;">
+    <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:14px;">Streak Kalender 🔥</div>
+    <div class="hm">
+      <div class="hc" style="background:var(--great);"></div><div class="hc" style="background:var(--good);"></div><div class="hc" style="background:var(--okay);"></div><div class="hc" style="background:var(--great);"></div><div class="hc" style="background:var(--bad);"></div><div class="hc" style="background:var(--great);"></div><div class="hc" style="background:#EFEFEF;"></div>
+      <div class="hc" style="background:var(--good);"></div><div class="hc" style="background:var(--great);"></div><div class="hc" style="background:var(--great);"></div><div class="hc" style="background:var(--okay);"></div><div class="hc" style="background:var(--good);"></div><div class="hc" style="background:#EFEFEF;"></div><div class="hc" style="background:#EFEFEF;"></div>
+      <div class="hc" style="background:var(--great);"></div><div class="hc" style="background:var(--great);"></div><div class="hc" style="background:var(--bad);"></div><div class="hc" style="background:var(--great);"></div><div class="hc" style="background:var(--great);"></div><div class="hc" style="background:#EFEFEF;"></div><div class="hc" style="background:#EFEFEF;"></div>
+      <div class="hc" style="background:var(--okay);"></div><div class="hc" style="background:var(--good);"></div><div class="hc" style="background:var(--great);"></div><div class="hc" style="background:var(--great);"></div><div class="hc" style="background:var(--great);"></div><div class="hc" style="background:#EFEFEF;"></div><div class="hc" style="background:#EFEFEF;"></div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:12px;align-items:center;"><div style="width:12px;height:12px;border-radius:3px;background:var(--great);"></div><span style="font-size:11px;color:var(--muted);">Baik</span><div style="width:12px;height:12px;border-radius:3px;background:var(--okay);"></div><span style="font-size:11px;color:var(--muted);">Biasa</span><div style="width:12px;height:12px;border-radius:3px;background:#EFEFEF;"></div><span style="font-size:11px;color:var(--muted);">Belum</span></div>
+  </div>
+</div>
+
+<!-- PROFILE -->
+<div class="screen pbt" id="sp">
+  <div class="sb"></div>
+  <div style="padding:24px;text-align:center;border-bottom:1px solid var(--border);margin-bottom:20px;">
+    <div style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--warm),var(--calm));display:flex;align-items:center;justify-content:center;font-size:36px;margin:0 auto 12px;box-shadow:0 8px 24px rgba(212,114,74,0.25);">🌿</div>
+    <div style="font-size:22px;font-weight:700;color:var(--text);margin-bottom:4px;">Darwin</div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:12px;">darwin@gmail.com</div>
+    <div style="display:inline-flex;align-items:center;gap:6px;background:var(--warm);color:#fff;border-radius:var(--pill);padding:6px 14px;font-size:12px;font-weight:700;">✨ Premium</div>
+  </div>
+  <div style="margin-bottom:20px;"><div class="mst">Akun</div><div class="ms3"><div class="mi2" onclick="S('sst')"><span class="mx">🔔</span><span class="mt">Notifikasi</span><span class="mch">›</span></div><div class="mi2"><span class="mx">🌙</span><span class="mt">Tampilan</span><span class="mv">Terang</span><span class="mch">›</span></div></div></div>
+  <div style="margin-bottom:20px;"><div class="mst">Privasi</div><div class="ms3"><div class="mi2"><span class="mx">🔒</span><span class="mt">Privasi &amp; Data</span><span class="mch">›</span></div><div class="mi2"><span class="mx">📤</span><span class="mt">Ekspor Jurnal</span><span class="mch">›</span></div></div></div>
+  <div style="margin-bottom:24px;"><div class="mst">Lainnya</div><div class="ms3"><div class="mi2"><span class="mx">❓</span><span class="mt">Bantuan</span><span class="mch">›</span></div><div class="mi2"><span class="mx">📝</span><span class="mt">Tentang Reflect</span><span class="mv">v1.0.0</span><span class="mch">›</span></div></div></div>
+  <div style="padding:0 24px;margin-bottom:8px;"><button style="width:100%;background:transparent;border:1.5px solid var(--terrible);border-radius:var(--pill);padding:16px;font-size:15px;font-weight:700;color:var(--terrible);font-family:var(--f);cursor:pointer;">Keluar</button></div>
+</div>
+
+<!-- SETTINGS -->
+<div class="screen" id="sst" style="padding-bottom:40px;">
+  <div class="sb"></div>
+  <div style="padding:0 24px 24px;"><div class="back" style="margin-bottom:20px;" onclick="S('sp')">←</div><div style="font-size:24px;font-weight:700;color:var(--text);">Pengaturan Notifikasi</div></div>
+  <div style="padding:0 24px;margin-bottom:8px;font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;">Pengingat Harian</div>
+  <div style="padding:0 24px;margin-bottom:24px;">
+    <div class="tr"><div><div style="font-size:15px;font-weight:600;color:var(--text);">Aktifkan pengingat</div><div style="font-size:12px;color:var(--muted);">Terima notifikasi harian</div></div><div class="ts on"><div class="tk"></div></div></div>
+    <div class="tr"><div><div style="font-size:15px;font-weight:600;color:var(--text);">Waktu pengingat</div><div style="font-size:12px;color:var(--warm);font-weight:700;">08:00 pagi →</div></div><div class="ts on"><div class="tk"></div></div></div>
+  </div>
+  <div style="padding:0 24px;margin-bottom:8px;font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;">Tipe Notifikasi</div>
+  <div style="padding:0 24px;margin-bottom:24px;">
+    <div class="tr"><div style="font-size:15px;font-weight:600;color:var(--text);">Pengingat mood harian</div><div class="ts on"><div class="tk"></div></div></div>
+    <div class="tr"><div style="font-size:15px;font-weight:600;color:var(--text);">Pengingat jurnal</div><div class="ts on"><div class="tk"></div></div></div>
+    <div class="tr"><div style="font-size:15px;font-weight:600;color:var(--text);">Pencapaian streak</div><div class="ts on"><div class="tk"></div></div></div>
+    <div class="tr"><div style="font-size:15px;font-weight:600;color:var(--text);">Tips wellbeing</div><div class="ts off"><div class="tk"></div></div></div>
+  </div>
+  <div style="padding:0 24px;font-size:12px;color:var(--muted);font-style:italic;line-height:1.6;">Notifikasi hanya muncul di waktu yang kamu pilih. Tidak ada spam.</div>
+</div>
+
+<!-- TAB BAR -->
+<div class="tab-bar" id="tbr">
+  <div class="ti on" id="tth" onclick="S('sh');setT('tth')"><span>🏠</span><span>Today</span></div>
+  <div class="ti" id="ttj" onclick="S('sjl');setT('ttj')"><span>📓</span><span>Jurnal</span></div>
+  <div class="ti" id="tti" onclick="S('si');setT('tti')"><span>📊</span><span>Insights</span></div>
+  <div class="ti" id="ttp" onclick="S('sp');setT('ttp')"><span>👤</span><span>Profil</span></div>
+</div>
+<div class="homebar"></div>
+</div>
+
+<!-- DEMO NAV -->
+<div class="dn">
+  <span class="nl">AUTH</span>
+  <button class="nb" id="nw" onclick="S('sw')">Welcome</button>
+  <button class="nb" id="nl2" onclick="S('sl')">Login</button>
+  <span class="nl">ONBOARDING</span>
+  <button class="nb" id="n1" onclick="S('s1')">OB1</button>
+  <button class="nb" id="n2" onclick="S('s2')">OB2</button>
+  <button class="nb" id="n3" onclick="S('s3')">OB3</button>
+  <button class="nb" id="n4" onclick="S('s4')">OB4</button>
+  <button class="nb" id="n5" onclick="S('s5')">OB5</button>
+  <button class="nb" id="n6" onclick="S('s6')">OB6</button>
+  <button class="nb" id="n7" onclick="S('s7')">Bayar</button>
+  <span class="nl">APP</span>
+  <button class="nb" id="nh" onclick="S('sh')">Home</button>
+  <button class="nb" id="nm" onclick="S('sm')">Mood</button>
+  <button class="nb" id="ns" onclick="S('ss')">Saved</button>
+  <button class="nb" id="njl" onclick="S('sjl')">Jurnal</button>
+  <button class="nb" id="nj" onclick="S('sj')">Sesi</button>
+  <button class="nb" id="ni" onclick="S('si')">Insights</button>
+  <button class="nb" id="np" onclick="S('sp')">Profil</button>
+  <button class="nb" id="nst" onclick="S('sst')">Notif</button>
 </div>
 
 <script>
-  const screenToNav = {
-    'screen-home': 'nav-home',
-    'screen-mood': 'nav-mood',
-    'screen-saved': 'nav-saved',
-    'screen-journal': 'nav-journal'
-  };
-
-  const screenToTab = {
-    'screen-home': 'tab-home',
-    'screen-journal': 'tab-journal'
-  };
-
-  function showScreen(id) {
-    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
-    document.getElementById(id).scrollTop = 0;
-
-    // Update nav buttons
-    document.querySelectorAll('.demo-btn').forEach(b => b.classList.remove('active-screen'));
-    const navId = screenToNav[id];
-    if (navId) document.getElementById(navId).classList.add('active-screen');
-
-    // Update tab bar
-    document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
-    const tabId = screenToTab[id];
-    if (tabId) document.getElementById(tabId).classList.add('active');
-  }
-
-  function setActiveTab(tabId) {
-    document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
-    document.getElementById(tabId).classList.add('active');
-  }
-
-  function selectMood(el) {
-    document.querySelectorAll('.mood-scale-item').forEach(i => i.classList.remove('selected'));
-    el.classList.add('selected');
-  }
-
-  function toggleTag(el) {
-    el.classList.toggle('selected');
-  }
+const NO_TAB=['sw','sl','s1','s2','s3','s4','s5','s6','s7','sm','ss','sj','sst'];
+const TAB_MAP={'sh':'tth','sjl':'ttj','sj':'ttj','si':'tti','sp':'ttp','sst':'ttp'};
+const NAV_MAP={'sw':'nw','sl':'nl2','s1':'n1','s2':'n2','s3':'n3','s4':'n4','s5':'n5','s6':'n6','s7':'n7','sh':'nh','sm':'nm','ss':'ns','sjl':'njl','sj':'nj','si':'ni','sp':'np','sst':'nst'};
+function S(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.getElementById(id).scrollTop=0;
+  document.getElementById('tbr').style.display=NO_TAB.includes(id)?'none':'flex';
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));
+  const nb=document.getElementById(NAV_MAP[id]);if(nb)nb.classList.add('on');
+  document.querySelectorAll('.ti').forEach(t=>t.classList.remove('on'));
+  const ti=TAB_MAP[id];if(ti)document.getElementById(ti).classList.add('on');
+}
+function setT(id){document.querySelectorAll('.ti').forEach(t=>t.classList.remove('on'));document.getElementById(id).classList.add('on');}
+function selMood(el){document.querySelectorAll('.mi').forEach(i=>i.classList.remove('on'));el.classList.add('on');}
+function togTag(el){el.classList.toggle('on');}
+S('sw');
 </script>
 </body>
 </html>
