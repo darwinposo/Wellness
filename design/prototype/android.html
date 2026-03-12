@@ -1,0 +1,1344 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reflect — Android Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Lora:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-primary: #FAF8F5;
+    --surface: #FFFFFF;
+    --brand-warm: #D4724A;
+    --brand-warm-light: #F0E8E2;
+    --brand-calm: #4A7D8C;
+    --brand-calm-light: #E2EDF0;
+    --mood-great: #6BAE8C;
+    --mood-good: #A8C97A;
+    --mood-okay: #E8C84A;
+    --mood-bad: #E89A5A;
+    --mood-terrible: #D46A6A;
+    --text-primary: #1A1A2E;
+    --text-muted: #8A8A9A;
+    --text-light: #B8B8C8;
+    --border: #EFEFEF;
+    --shadow-card: 0 4px 20px rgba(0,0,0,0.07);
+    --shadow-tab: 0 -4px 24px rgba(0,0,0,0.08);
+    --radius-card: 18px;
+    --radius-pill: 50px;
+    --font-main: 'Plus Jakarta Sans', sans-serif;
+    --font-journal: 'Lora', serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    background: #111218;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    font-family: var(--font-main);
+    gap: 32px;
+    padding: 20px;
+  }
+
+  /* ========================
+     ANDROID PHONE FRAME
+  ======================== */
+  .phone-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .phone-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.4);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .phone {
+    width: 393px;
+    height: 873px;
+    background: var(--bg-primary);
+    border-radius: 46px;
+    overflow: hidden;
+    position: relative;
+    /* Android frame: flat sides, slight curve */
+    box-shadow:
+      0 0 0 2px #2C2C3A,
+      0 0 0 4px #1A1A28,
+      0 40px 80px rgba(0,0,0,0.7),
+      inset 0 1px 0 rgba(255,255,255,0.08);
+  }
+
+  /* Android volume buttons (left side) */
+  .phone::before {
+    content: '';
+    position: absolute;
+    left: -6px;
+    top: 130px;
+    width: 4px;
+    height: 36px;
+    background: #2C2C3A;
+    border-radius: 2px 0 0 2px;
+    box-shadow: 0 48px 0 #2C2C3A, 0 96px 0 #2C2C3A;
+  }
+
+  /* Android power button (right side) */
+  .phone::after {
+    content: '';
+    position: absolute;
+    right: -6px;
+    top: 160px;
+    width: 4px;
+    height: 52px;
+    background: #2C2C3A;
+    border-radius: 0 2px 2px 0;
+  }
+
+  /* Punch-hole camera */
+  .punch-hole {
+    position: absolute;
+    top: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 12px;
+    height: 12px;
+    background: #080808;
+    border-radius: 50%;
+    z-index: 100;
+    box-shadow: 0 0 0 1px #1A1A1A;
+  }
+
+  /* Android status bar */
+  .status-bar {
+    padding: 12px 20px 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-primary);
+    flex-shrink: 0;
+    padding-top: 36px;
+  }
+
+  .status-left {
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  .status-right {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  .battery-icon {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+  }
+
+  .battery-bar {
+    width: 22px;
+    height: 11px;
+    border: 1.5px solid var(--text-primary);
+    border-radius: 3px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    padding: 1.5px;
+  }
+
+  .battery-bar::after {
+    content: '';
+    position: absolute;
+    right: -5px;
+    width: 3px;
+    height: 5px;
+    background: var(--text-primary);
+    border-radius: 0 2px 2px 0;
+  }
+
+  .battery-fill {
+    height: 100%;
+    width: 75%;
+    background: var(--mood-great);
+    border-radius: 1px;
+  }
+
+  /* Android gesture nav bar */
+  .gesture-bar {
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 120px;
+    height: 5px;
+    background: var(--text-primary);
+    border-radius: var(--radius-pill);
+    opacity: 0.18;
+    z-index: 60;
+  }
+
+  /* SCREENS */
+  .screen {
+    position: absolute;
+    inset: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    display: none;
+    flex-direction: column;
+    padding-bottom: 116px;
+    scrollbar-width: none;
+  }
+  .screen::-webkit-scrollbar { display: none; }
+  .screen.active { display: flex; }
+
+  /* ========================
+     ANDROID TAB BAR (Material You style)
+  ======================== */
+  .tab-bar {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    padding: 10px 8px 28px;
+    background: rgba(250,248,245,0.97);
+    backdrop-filter: blur(24px);
+    box-shadow: var(--shadow-tab);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    z-index: 50;
+    border-top: 1px solid rgba(0,0,0,0.04);
+  }
+
+  /* Android nav items use indicator pill ABOVE icon (Material 3) */
+  .tab-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    padding: 6px 20px 2px;
+    border-radius: 20px;
+    position: relative;
+    min-width: 64px;
+  }
+
+  /* Active state: filled pill behind icon (Material 3 pattern) */
+  .tab-item.active::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 56px;
+    height: 32px;
+    background: var(--brand-warm-light);
+    border-radius: var(--radius-pill);
+  }
+
+  .tab-icon {
+    font-size: 20px;
+    line-height: 1;
+    position: relative;
+    z-index: 1;
+    margin-bottom: 2px;
+  }
+
+  .tab-label {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-muted);
+    position: relative;
+    z-index: 1;
+  }
+
+  .tab-item.active .tab-label {
+    color: var(--brand-warm);
+    font-weight: 700;
+  }
+
+  /* ========================
+     ANDROID FAB (floating action)
+  ======================== */
+  .fab {
+    position: absolute;
+    bottom: 88px;
+    right: 24px;
+    width: 56px;
+    height: 56px;
+    background: var(--brand-warm);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    box-shadow: 0 4px 20px rgba(212,114,74,0.45);
+    cursor: pointer;
+    z-index: 40;
+    transition: transform 0.15s;
+    color: white;
+  }
+
+  .fab:active { transform: scale(0.94); }
+
+  /* ========================
+     SECTION HEADERS
+  ======================== */
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+    margin-bottom: 14px;
+  }
+
+  .section-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+
+  .section-link {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--brand-warm);
+  }
+
+  /* ========================
+     HOME SCREEN
+  ======================== */
+  .home-header {
+    padding: 0 20px 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .user-info { display: flex; align-items: center; gap: 12px; }
+
+  .avatar {
+    width: 42px; height: 42px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--brand-warm), #C0A882);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  .user-name { font-size: 15px; font-weight: 700; color: var(--text-primary); }
+  .user-subtitle { font-size: 12px; color: var(--text-muted); font-weight: 500; }
+
+  .notif-btn {
+    width: 42px; height: 42px;
+    border-radius: 12px;
+    background: var(--surface);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    box-shadow: var(--shadow-card);
+    cursor: pointer;
+    position: relative;
+    border: 1px solid var(--border);
+  }
+
+  .notif-dot {
+    position: absolute;
+    top: 9px; right: 9px;
+    width: 8px; height: 8px;
+    background: var(--brand-warm);
+    border-radius: 50%;
+    border: 2px solid var(--bg-primary);
+  }
+
+  .greeting-section {
+    padding: 0 20px 20px;
+  }
+
+  .greeting-text {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1.25;
+    margin-bottom: 6px;
+  }
+
+  .greeting-sub {
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  /* MOOD CTA - Android style (extended FAB feel) */
+  .mood-cta-card {
+    margin: 0 20px 24px;
+    background: linear-gradient(135deg, var(--brand-warm) 0%, #B85C34 100%);
+    border-radius: 24px;
+    padding: 20px 22px;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.15s;
+    box-shadow: 0 6px 28px rgba(212,114,74,0.38);
+  }
+
+  .mood-cta-card:active { transform: scale(0.98); }
+
+  .mood-cta-ripple {
+    position: absolute;
+    right: -24px; top: -24px;
+    width: 130px; height: 130px;
+    background: rgba(255,255,255,0.09);
+    border-radius: 50%;
+  }
+
+  .mood-cta-ripple2 {
+    position: absolute;
+    right: 20px; bottom: -32px;
+    width: 90px; height: 90px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 50%;
+  }
+
+  .mood-cta-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.7);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+
+  .mood-cta-title {
+    font-size: 19px;
+    font-weight: 700;
+    color: #FFFFFF;
+    margin-bottom: 16px;
+    line-height: 1.35;
+  }
+
+  .mood-cta-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .mood-cta-btn {
+    background: rgba(255,255,255,0.18);
+    border: 1.5px solid rgba(255,255,255,0.35);
+    border-radius: var(--radius-pill);
+    padding: 9px 18px;
+    color: #FFFFFF;
+    font-size: 13px;
+    font-weight: 700;
+    font-family: var(--font-main);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .mood-cta-emoji { font-size: 32px; }
+
+  /* STREAK */
+  .streak-row {
+    display: flex;
+    gap: 12px;
+    padding: 0 20px;
+    margin-bottom: 24px;
+  }
+
+  .streak-chip {
+    flex: 1;
+    background: var(--surface);
+    border-radius: 16px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: var(--shadow-card);
+    border: 1px solid var(--border);
+  }
+
+  .streak-chip-icon { font-size: 24px; }
+  .streak-chip-val { font-size: 18px; font-weight: 800; color: var(--text-primary); }
+  .streak-chip-label { font-size: 11px; color: var(--text-muted); font-weight: 600; margin-top: 1px; }
+
+  /* MOOD CIRCLES */
+  .mood-circles-scroll {
+    display: flex;
+    gap: 12px;
+    padding: 0 20px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    margin-bottom: 24px;
+  }
+
+  .mood-circle-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+    cursor: pointer;
+  }
+
+  .mood-circle {
+    width: 56px; height: 56px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    box-shadow: var(--shadow-card);
+    border: 1px solid var(--border);
+  }
+
+  .mood-circle-label { font-size: 10px; color: var(--text-muted); font-weight: 600; }
+  .mood-circle-day { font-size: 10px; color: var(--text-light); font-weight: 500; margin-top: -2px; }
+
+  /* JOURNAL CARDS */
+  .journal-card {
+    margin: 0 20px 14px;
+    background: var(--surface);
+    border-radius: var(--radius-card);
+    overflow: hidden;
+    box-shadow: var(--shadow-card);
+    cursor: pointer;
+    transition: transform 0.15s;
+    border: 1px solid var(--border);
+  }
+
+  .journal-card:active { transform: scale(0.98); }
+
+  .journal-card-image {
+    width: 100%;
+    height: 150px;
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    overflow: hidden;
+  }
+
+  .journal-card-gradient {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, transparent 30%, rgba(0,0,0,0.55));
+  }
+
+  .journal-card-mood-tag {
+    position: absolute;
+    top: 12px; left: 12px;
+    background: rgba(255,255,255,0.95);
+    border-radius: var(--radius-pill);
+    padding: 5px 10px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-primary);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+  }
+
+  .journal-card-date {
+    position: absolute;
+    top: 12px; right: 12px;
+    background: rgba(0,0,0,0.38);
+    backdrop-filter: blur(8px);
+    border-radius: var(--radius-pill);
+    padding: 5px 10px;
+    font-size: 10px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.9);
+  }
+
+  .journal-card-body {
+    padding: 14px 16px 16px;
+  }
+
+  .journal-card-preview {
+    font-family: var(--font-journal);
+    font-size: 14px;
+    color: var(--text-primary);
+    line-height: 1.65;
+    margin-bottom: 10px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .journal-card-ai {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    background: var(--brand-warm-light);
+    border-radius: 10px;
+    padding: 9px 11px;
+  }
+
+  .journal-card-ai-text {
+    font-size: 12px;
+    color: var(--brand-warm);
+    font-weight: 600;
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* ========================
+     MOOD SCREEN
+  ======================== */
+  .back-btn {
+    width: 40px; height: 40px;
+    border-radius: 12px;
+    background: var(--surface);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    box-shadow: var(--shadow-card);
+    cursor: pointer;
+    margin-bottom: 20px;
+    border: 1px solid var(--border);
+  }
+
+  .mood-screen-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+    line-height: 1.3;
+  }
+
+  .mood-screen-sub {
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  .mood-scale {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 0 20px;
+    margin-bottom: 10px;
+  }
+
+  .mood-scale-item {
+    flex: 1;
+    aspect-ratio: 1;
+    border-radius: 18px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1.5px solid var(--border);
+    background: var(--surface);
+  }
+
+  .mood-scale-item.selected {
+    border-color: var(--brand-warm);
+    background: var(--brand-warm-light);
+    transform: scale(1.07);
+    box-shadow: 0 4px 16px rgba(212,114,74,0.2);
+  }
+
+  .mood-scale-emoji { font-size: 26px; }
+  .mood-scale-label { font-size: 8.5px; font-weight: 700; color: var(--text-muted); text-align: center; line-height: 1.2; }
+
+  .mood-tags-section { padding: 0 20px; margin-bottom: 24px; }
+  .mood-tags-title { font-size: 15px; font-weight: 700; color: var(--text-primary); margin-bottom: 12px; }
+
+  .mood-tags-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+
+  .mood-tag {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-pill);
+    padding: 7px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.18s;
+  }
+
+  .mood-tag.selected {
+    background: var(--text-primary);
+    border-color: var(--text-primary);
+    color: #FFFFFF;
+  }
+
+  .note-input {
+    margin: 0 20px 24px;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 16px;
+    padding: 14px 16px;
+    font-family: var(--font-journal);
+    font-size: 14px;
+    color: var(--text-primary);
+    width: calc(100% - 40px);
+    height: 80px;
+    resize: none;
+    outline: none;
+    line-height: 1.6;
+  }
+
+  .note-input::placeholder { color: var(--text-light); }
+  .note-input:focus { border-color: var(--brand-warm); }
+
+  /* Android primary button (filled, rounded rect - Material 3) */
+  .primary-btn {
+    margin: 0 20px;
+    background: var(--brand-warm);
+    color: #FFFFFF;
+    border: none;
+    border-radius: 16px;
+    padding: 17px;
+    font-size: 15px;
+    font-weight: 700;
+    font-family: var(--font-main);
+    width: calc(100% - 40px);
+    cursor: pointer;
+    transition: all 0.18s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(212,114,74,0.35);
+    letter-spacing: 0.2px;
+  }
+
+  .primary-btn:active { transform: scale(0.98); }
+
+  /* ========================
+     JOURNAL SESSION
+  ======================== */
+  .journal-header {
+    padding: 0 20px 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .ai-avatar {
+    width: 42px; height: 42px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--brand-calm), #2D5F6E);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    box-shadow: 0 4px 12px rgba(74,125,140,0.28);
+  }
+
+  .journal-header-info { flex: 1; }
+  .journal-header-name { font-size: 15px; font-weight: 700; color: var(--text-primary); }
+  .journal-header-status { font-size: 11px; color: var(--mood-great); font-weight: 700; display: flex; align-items: center; gap: 4px; }
+
+  .session-info-chip {
+    margin: 0 20px 18px;
+    background: var(--brand-warm-light);
+    border-radius: 14px;
+    padding: 11px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border: 1px solid rgba(212,114,74,0.15);
+  }
+
+  .session-info-text {
+    font-size: 12px;
+    color: var(--brand-warm);
+    font-weight: 700;
+    flex: 1;
+  }
+
+  .free-usage-bar {
+    width: 48px; height: 4px;
+    background: rgba(212,114,74,0.2);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .free-usage-fill { width: 66%; height: 100%; background: var(--brand-warm); border-radius: 2px; }
+  .free-usage-text { font-size: 11px; color: var(--brand-warm); font-weight: 800; }
+
+  .chat-container {
+    flex: 1;
+    padding: 0 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-bottom: 16px;
+  }
+
+  .chat-bubble {
+    max-width: 82%;
+    border-radius: 18px;
+    padding: 13px 15px;
+    line-height: 1.6;
+    font-size: 14px;
+  }
+
+  .chat-bubble.ai {
+    background: var(--surface);
+    color: var(--text-primary);
+    border-bottom-left-radius: 6px;
+    align-self: flex-start;
+    border: 1px solid var(--border);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  }
+
+  .chat-bubble.user {
+    background: var(--text-primary);
+    color: #FFFFFF;
+    border-bottom-right-radius: 6px;
+    align-self: flex-end;
+    font-family: var(--font-journal);
+    font-style: italic;
+  }
+
+  .typing-indicator {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 12px 14px;
+    background: var(--surface);
+    border-radius: 18px;
+    border-bottom-left-radius: 6px;
+    width: fit-content;
+    border: 1px solid var(--border);
+  }
+
+  .typing-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--text-light);
+    animation: typingPulse 1.4s ease-in-out infinite;
+  }
+
+  .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+  .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes typingPulse {
+    0%,60%,100% { transform: translateY(0); opacity: 0.4; }
+    30% { transform: translateY(-5px); opacity: 1; }
+  }
+
+  /* Android chat input (Material 3 outlined style) */
+  .chat-input-area {
+    margin: 0 20px;
+    background: var(--surface);
+    border-radius: 16px;
+    padding: 10px 12px 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border: 1.5px solid var(--border);
+    transition: border-color 0.2s;
+  }
+
+  .chat-input-area:focus-within { border-color: var(--brand-warm); }
+
+  .chat-input-field {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-family: var(--font-journal);
+    font-size: 14px;
+    color: var(--text-primary);
+    background: transparent;
+  }
+
+  .chat-input-field::placeholder { color: var(--text-light); }
+
+  .chat-send-btn {
+    width: 38px; height: 38px;
+    border-radius: 12px;
+    background: var(--brand-warm);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    cursor: pointer;
+    box-shadow: 0 3px 10px rgba(212,114,74,0.38);
+    flex-shrink: 0;
+    color: white;
+    transition: transform 0.15s;
+  }
+
+  .chat-send-btn:active { transform: scale(0.92); }
+
+  /* ========================
+     MOOD SAVED SCREEN
+  ======================== */
+  .saved-lottie {
+    width: 110px; height: 110px;
+    border-radius: 28px;
+    background: linear-gradient(135deg, var(--mood-great), #3D9B6E);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 48px;
+    margin-bottom: 24px;
+    box-shadow: 0 10px 36px rgba(107,174,140,0.32);
+    animation: savedBounce 0.5s cubic-bezier(0.34,1.56,0.64,1);
+  }
+
+  @keyframes savedBounce {
+    0% { transform: scale(0) rotate(-10deg); }
+    100% { transform: scale(1) rotate(0deg); }
+  }
+
+  .saved-title { font-size: 24px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px; }
+  .saved-subtitle { font-size: 14px; color: var(--text-muted); line-height: 1.65; max-width: 255px; margin-bottom: 32px; }
+
+  .ghost-btn {
+    margin: 12px 20px 0;
+    background: transparent;
+    color: var(--text-muted);
+    border: none;
+    border-radius: 16px;
+    padding: 14px;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: var(--font-main);
+    width: calc(100% - 40px);
+    cursor: pointer;
+    text-align: center;
+  }
+
+  /* BG gradients for cards */
+  .jcard-bg-1 { background: linear-gradient(135deg, #B8D4C8, #7BAAA0); }
+  .jcard-bg-2 { background: linear-gradient(135deg, #D4B8A0, #B08060); }
+  .jcard-bg-3 { background: linear-gradient(135deg, #C8B8D4, #9878B4); }
+
+  /* ========================
+     DEMO NAV
+  ======================== */
+  .demo-nav {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    z-index: 200;
+  }
+
+  .demo-btn {
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.25);
+    color: rgba(255,255,255,0.75);
+    border-radius: 20px;
+    padding: 8px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    font-family: var(--font-main);
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  .demo-btn:hover { background: rgba(255,255,255,0.22); color: white; }
+  .demo-btn.active-screen { background: var(--brand-warm); border-color: var(--brand-warm); color: white; }
+
+  /* Android material ripple feel on cards */
+  @keyframes ripple {
+    to { transform: scale(4); opacity: 0; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ANDROID PHONE -->
+<div class="phone-wrap">
+  <div class="phone-label">Android — Xiaomi/Samsung A-series</div>
+
+  <div class="phone">
+    <div class="punch-hole"></div>
+
+    <!-- ===================== SCREEN 1: HOME ===================== -->
+    <div class="screen active" id="screen-home">
+
+      <div class="status-bar">
+        <div class="status-left">9:41</div>
+        <div class="status-right">
+          <span>4G</span>
+          <span>▲▲▲</span>
+          <span>📶</span>
+          <div class="battery-icon">
+            <div class="battery-bar"><div class="battery-fill"></div></div>
+            <span style="font-size:10px;margin-left:3px;">75%</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="home-header">
+        <div class="user-info">
+          <div class="avatar">🌿</div>
+          <div>
+            <div class="user-name">Darwin</div>
+            <div class="user-subtitle">Selamat pagi ✨</div>
+          </div>
+        </div>
+        <div class="notif-btn">
+          🔔
+          <div class="notif-dot"></div>
+        </div>
+      </div>
+
+      <div class="greeting-section">
+        <div class="greeting-text">Bagaimana perasaanmu<br>hari ini? 💭</div>
+        <div class="greeting-sub" style="margin-top:4px;">Luangkan 2 menit untuk refleksi diri</div>
+      </div>
+
+      <!-- Mood CTA -->
+      <div class="mood-cta-card" onclick="showScreen('screen-mood')">
+        <div class="mood-cta-ripple"></div>
+        <div class="mood-cta-ripple2"></div>
+        <div class="mood-cta-label">Cek Harian</div>
+        <div class="mood-cta-row">
+          <div>
+            <div class="mood-cta-title">Mulai refleksi<br>harianmu</div>
+            <div class="mood-cta-btn">Cek Mood →</div>
+          </div>
+          <div class="mood-cta-emoji">💭</div>
+        </div>
+      </div>
+
+      <!-- Stats row -->
+      <div class="streak-row">
+        <div class="streak-chip">
+          <div class="streak-chip-icon">🔥</div>
+          <div>
+            <div class="streak-chip-val">7</div>
+            <div class="streak-chip-label">Hari streak</div>
+          </div>
+        </div>
+        <div class="streak-chip">
+          <div class="streak-chip-icon">📓</div>
+          <div>
+            <div class="streak-chip-val">24</div>
+            <div class="streak-chip-label">Total jurnal</div>
+          </div>
+        </div>
+        <div class="streak-chip">
+          <div class="streak-chip-icon">✨</div>
+          <div>
+            <div class="streak-chip-val">4.2</div>
+            <div class="streak-chip-label">Mood rata²</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mood history -->
+      <div class="section-header">
+        <div class="section-title">Mood Minggu Ini</div>
+        <div class="section-link">Lihat Semua</div>
+      </div>
+
+      <div class="mood-circles-scroll">
+        <div class="mood-circle-item">
+          <div class="mood-circle" style="background:#E8F4F0;">😄</div>
+          <div class="mood-circle-label">Sen</div>
+          <div class="mood-circle-day">Great</div>
+        </div>
+        <div class="mood-circle-item">
+          <div class="mood-circle" style="background:#EFF5E8;">🙂</div>
+          <div class="mood-circle-label">Sel</div>
+          <div class="mood-circle-day">Good</div>
+        </div>
+        <div class="mood-circle-item">
+          <div class="mood-circle" style="background:#FEF9E0;">😐</div>
+          <div class="mood-circle-label">Rab</div>
+          <div class="mood-circle-day">Okay</div>
+        </div>
+        <div class="mood-circle-item">
+          <div class="mood-circle" style="background:#FEF0E8;">😟</div>
+          <div class="mood-circle-label">Kam</div>
+          <div class="mood-circle-day">Low</div>
+        </div>
+        <div class="mood-circle-item">
+          <div class="mood-circle" style="background:#E8F4F0;">😄</div>
+          <div class="mood-circle-label">Jum</div>
+          <div class="mood-circle-day">Great</div>
+        </div>
+        <div class="mood-circle-item">
+          <div class="mood-circle" style="background:#F5F5F5; border:1.5px dashed #DDD;">❓</div>
+          <div class="mood-circle-label">Sab</div>
+          <div class="mood-circle-day">—</div>
+        </div>
+      </div>
+
+      <!-- Recent Journals -->
+      <div class="section-header">
+        <div class="section-title">Refleksi Terbaru</div>
+        <div class="section-link">Lihat Semua</div>
+      </div>
+
+      <div class="journal-card" onclick="showScreen('screen-journal')">
+        <div class="journal-card-image jcard-bg-1">
+          <div class="journal-card-gradient"></div>
+          <div class="journal-card-mood-tag">😄 Sangat Senang</div>
+          <div class="journal-card-date">2 hari lalu</div>
+        </div>
+        <div class="journal-card-body">
+          <div class="journal-card-preview">"Akhirnya selesai juga project yang udah aku kerjain berminggu-minggu. Rasanya lega banget..."</div>
+          <div class="journal-card-ai">
+            <span style="font-size:14px;flex-shrink:0;">✨</span>
+            <div class="journal-card-ai-text">Pencapaian ini bukan kebetulan — kamu yang membuatnya terjadi 💪</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="journal-card" onclick="showScreen('screen-journal')">
+        <div class="journal-card-image jcard-bg-2">
+          <div class="journal-card-gradient"></div>
+          <div class="journal-card-mood-tag">😐 Biasa</div>
+          <div class="journal-card-date">5 hari lalu</div>
+        </div>
+        <div class="journal-card-body">
+          <div class="journal-card-preview">"Hari ini kerja banyak tapi ngerasa gak produktif. Entah kenapa semua terasa berat..."</div>
+          <div class="journal-card-ai">
+            <span style="font-size:14px;flex-shrink:0;">🤗</span>
+            <div class="journal-card-ai-text">Perasaan 'sibuk tapi gak produktif' itu nyata — kamu tidak sendiri</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- FAB -->
+    <div class="fab" id="fab" onclick="showScreen('screen-mood')" title="Tulis Jurnal">✍️</div>
+
+    <!-- ===================== SCREEN 2: MOOD CHECK-IN ===================== -->
+    <div class="screen" id="screen-mood">
+      <div class="status-bar">
+        <div class="status-left">9:41</div>
+        <div class="status-right">
+          <span>4G</span><span>📶</span>
+          <div class="battery-bar"><div class="battery-fill"></div></div>
+        </div>
+      </div>
+
+      <div style="padding:0 20px 20px;">
+        <div class="back-btn" onclick="showScreen('screen-home')">←</div>
+        <div class="mood-screen-title">Bagaimana<br>perasaanmu hari ini?</div>
+        <div class="mood-screen-sub">Jujur aja, ini hanya untukmu 🤍</div>
+      </div>
+
+      <div class="mood-scale" style="margin-bottom:24px;">
+        <div class="mood-scale-item" onclick="selectMood(this)">
+          <div class="mood-scale-emoji">😢</div>
+          <div class="mood-scale-label">Sangat<br>Sedih</div>
+        </div>
+        <div class="mood-scale-item" onclick="selectMood(this)">
+          <div class="mood-scale-emoji">😟</div>
+          <div class="mood-scale-label">Sedih</div>
+        </div>
+        <div class="mood-scale-item selected" onclick="selectMood(this)">
+          <div class="mood-scale-emoji">😐</div>
+          <div class="mood-scale-label">Biasa</div>
+        </div>
+        <div class="mood-scale-item" onclick="selectMood(this)">
+          <div class="mood-scale-emoji">🙂</div>
+          <div class="mood-scale-label">Senang</div>
+        </div>
+        <div class="mood-scale-item" onclick="selectMood(this)">
+          <div class="mood-scale-emoji">😄</div>
+          <div class="mood-scale-label">Sangat<br>Senang</div>
+        </div>
+      </div>
+
+      <div class="mood-tags-section">
+        <div class="mood-tags-title">Ada yang mempengaruhi?</div>
+        <div class="mood-tags-grid">
+          <div class="mood-tag" onclick="toggleTag(this)">💼 Capek kerja</div>
+          <div class="mood-tag selected" onclick="toggleTag(this)">👨‍👩‍👧 Keluarga</div>
+          <div class="mood-tag" onclick="toggleTag(this)">❤️ Hubungan</div>
+          <div class="mood-tag" onclick="toggleTag(this)">🌿 Kesehatan</div>
+          <div class="mood-tag" onclick="toggleTag(this)">💰 Keuangan</div>
+          <div class="mood-tag" onclick="toggleTag(this)">🏆 Prestasi</div>
+          <div class="mood-tag" onclick="toggleTag(this)">+ Lainnya</div>
+        </div>
+      </div>
+
+      <textarea class="note-input" placeholder="Ceritakan sedikit... (opsional)"></textarea>
+
+      <button class="primary-btn" onclick="showScreen('screen-saved')">
+        Simpan Mood &nbsp; ✓
+      </button>
+      <div style="text-align:center;padding:14px;font-size:13px;color:var(--text-muted);font-weight:600;cursor:pointer;" onclick="showScreen('screen-home')">Lewati</div>
+    </div>
+
+    <!-- ===================== SCREEN 3: MOOD SAVED ===================== -->
+    <div class="screen" id="screen-saved" style="justify-content:center; align-items:center; text-align:center; padding:40px 20px;">
+      <div class="status-bar" style="position:absolute;top:0;left:0;right:0;">
+        <div class="status-left">9:41</div>
+        <div class="status-right"><span>4G</span><span>📶</span><div class="battery-bar"><div class="battery-fill"></div></div></div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;align-items:center;margin-top:60px;width:100%;">
+        <div class="saved-lottie">✓</div>
+        <div class="saved-title">Mood Tersimpan! 🎉</div>
+        <div class="saved-subtitle" style="margin-top:8px;">Mau cerita lebih? AI temanmu sudah siap mendengarkan dengan penuh perhatian.</div>
+
+        <!-- AI Preview -->
+        <div style="width:100%;background:var(--surface);border-radius:18px;border-bottom-left-radius:6px;padding:14px 16px;margin-bottom:20px;box-shadow:var(--shadow-card);text-align:left;border:1px solid var(--border);">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+            <div class="ai-avatar" style="width:32px;height:32px;font-size:14px;border-radius:10px;">✨</div>
+            <div style="font-size:13px;font-weight:700;color:var(--text-primary);">Reflect AI</div>
+            <div style="font-size:11px;color:var(--mood-great);font-weight:700;">● Online</div>
+          </div>
+          <div style="font-size:13px;color:var(--text-primary);line-height:1.65;">
+            "Hai! Aku lihat hari ini kamu merasa biasa aja 😊 Terkadang hari yang 'biasa' justru punya banyak cerita menarik. Ada yang pengen kamu ceritain?"
+          </div>
+        </div>
+
+        <button class="primary-btn" onclick="showScreen('screen-journal')" style="margin:0;">
+          Mulai Jurnal &nbsp; ✍️
+        </button>
+        <div class="ghost-btn" onclick="showScreen('screen-home')">Nanti aja</div>
+      </div>
+    </div>
+
+    <!-- ===================== SCREEN 4: JOURNAL SESSION ===================== -->
+    <div class="screen" id="screen-journal">
+      <div class="status-bar">
+        <div class="status-left">9:41</div>
+        <div class="status-right"><span>4G</span><span>📶</span><div class="battery-bar"><div class="battery-fill"></div></div></div>
+      </div>
+
+      <div class="journal-header">
+        <div class="back-btn" style="margin-bottom:0;" onclick="showScreen('screen-home')">←</div>
+        <div class="ai-avatar">✨</div>
+        <div class="journal-header-info">
+          <div class="journal-header-name">Reflect AI</div>
+          <div class="journal-header-status">● Siap mendengarkan</div>
+        </div>
+        <div style="font-size:22px;cursor:pointer;">⋮</div>
+      </div>
+
+      <div class="session-info-chip">
+        <span style="font-size:16px;">😐</span>
+        <div class="session-info-text">Mood: Biasa • Keluarga</div>
+        <div style="display:flex;align-items:center;gap:5px;">
+          <div class="free-usage-bar"><div class="free-usage-fill"></div></div>
+          <div class="free-usage-text">2/3</div>
+        </div>
+      </div>
+
+      <div class="chat-container">
+        <div class="chat-bubble ai">
+          Hai! Aku lihat hari ini kamu merasa biasa aja 😊<br><br>
+          Ada yang pengen kamu ceritain hari ini?
+        </div>
+        <div class="chat-bubble user">
+          Hari ini kerja banyak, tapi ngerasa gak produktif. Semua terasa berat.
+        </div>
+        <div class="chat-bubble ai">
+          Hmm, perasaan 'sibuk tapi gak produktif' itu berat banget ya... 😔<br><br>
+          Kira-kira ada satu hal yang bikin kamu paling terganggu hari ini?
+        </div>
+        <div class="typing-indicator">
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+        </div>
+      </div>
+
+      <div class="chat-input-area" style="margin-bottom:20px;">
+        <input class="chat-input-field" placeholder="Cerita apa aja, aku dengerin..." />
+        <div class="chat-send-btn">↑</div>
+      </div>
+    </div>
+
+    <!-- TAB BAR -->
+    <div class="tab-bar">
+      <div class="tab-item active" id="tab-home" onclick="showScreen('screen-home'); setActiveTab('tab-home')">
+        <span class="tab-icon">🏠</span>
+        <span class="tab-label">Today</span>
+      </div>
+      <div class="tab-item" id="tab-journal" onclick="showScreen('screen-journal'); setActiveTab('tab-journal')">
+        <span class="tab-icon">📓</span>
+        <span class="tab-label">Jurnal</span>
+      </div>
+      <div class="tab-item" id="tab-insights">
+        <span class="tab-icon">📊</span>
+        <span class="tab-label">Insights</span>
+      </div>
+      <div class="tab-item" id="tab-profile">
+        <span class="tab-icon">👤</span>
+        <span class="tab-label">Profil</span>
+      </div>
+    </div>
+
+    <!-- Android gesture bar -->
+    <div class="gesture-bar"></div>
+  </div>
+</div>
+
+<!-- Demo nav -->
+<div class="demo-nav">
+  <button class="demo-btn active-screen" id="nav-home" onclick="showScreen('screen-home')">🏠 Home</button>
+  <button class="demo-btn" id="nav-mood" onclick="showScreen('screen-mood')">😊 Mood</button>
+  <button class="demo-btn" id="nav-saved" onclick="showScreen('screen-saved')">✓ Saved</button>
+  <button class="demo-btn" id="nav-journal" onclick="showScreen('screen-journal')">✍️ Journal</button>
+</div>
+
+<script>
+  const screenToNav = {
+    'screen-home': 'nav-home',
+    'screen-mood': 'nav-mood',
+    'screen-saved': 'nav-saved',
+    'screen-journal': 'nav-journal'
+  };
+
+  const screenToTab = {
+    'screen-home': 'tab-home',
+    'screen-journal': 'tab-journal'
+  };
+
+  const fab = document.getElementById('fab');
+
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    document.getElementById(id).scrollTop = 0;
+
+    // FAB only on home
+    fab.style.display = (id === 'screen-home') ? 'flex' : 'none';
+
+    document.querySelectorAll('.demo-btn').forEach(b => b.classList.remove('active-screen'));
+    const navId = screenToNav[id];
+    if (navId) document.getElementById(navId).classList.add('active-screen');
+
+    document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+    const tabId = screenToTab[id];
+    if (tabId) document.getElementById(tabId).classList.add('active');
+  }
+
+  function setActiveTab(tabId) {
+    document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+    document.getElementById(tabId).classList.add('active');
+  }
+
+  function selectMood(el) {
+    document.querySelectorAll('.mood-scale-item').forEach(i => i.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+
+  function toggleTag(el) {
+    el.classList.toggle('selected');
+  }
+</script>
+</body>
+</html>

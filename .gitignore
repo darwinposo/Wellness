@@ -1,0 +1,29 @@
+# WSL Windows artifacts
+*:Zone.Identifier
+
+# Node
+node_modules/
+.env
+.env.local
+.env*.local
+
+# Expo
+.expo/
+dist/
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Build
+build/

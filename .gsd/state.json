@@ -1,0 +1,29 @@
+{
+  "project": "Reflect",
+  "phase": "TASK",
+  "milestone": "M001",
+  "slice": "S01",
+  "task": "T01",
+  "iteration": 1,
+  "lastActive": "2026-03-12",
+  "history": [
+    {
+      "from": "DISCUSS",
+      "to": "RESEARCH",
+      "date": "2026-03-11",
+      "action": "discuss_complete"
+    },
+    {
+      "from": "RESEARCH",
+      "to": "PLAN",
+      "date": "2026-03-11",
+      "action": "research_complete"
+    },
+    {
+      "from": "PLAN",
+      "to": "TASK",
+      "date": "2026-03-12",
+      "action": "plan_complete"
+    }
+  ]
+}
