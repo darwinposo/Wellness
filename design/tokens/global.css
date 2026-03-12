@@ -1,0 +1,158 @@
+/**
+ * Reflect Design System — CSS Custom Properties
+ * Generated from design/tokens/tokens.json
+ *
+ * Usage: Import in app root (e.g. _layout.tsx or App.tsx)
+ * NativeWind reads these via var() references in tailwind.config.js
+ *
+ * Semantic token names match Figma Variable names exactly.
+ * Primitives are defined as --p-* to avoid naming collisions.
+ */
+
+/* ─── Google Fonts ────────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&family=Lora:wght@400;700&display=swap');
+
+/* ─── Primitives ──────────────────────────────────────────────── */
+:root {
+  /* Brand */
+  --p-amber-400:   #D4724A;
+  --p-amber-300:   #E89A70;
+  --p-teal-500:    #4A7D8C;
+  --p-teal-400:    #6AA8B8;
+
+  /* Mood */
+  --p-sage-400:    #7DB87A;
+  --p-coral-400:   #C4735A;
+
+  /* Neutrals */
+  --p-neutral-950: #1A1A22;
+  --p-neutral-900: #1A1A28;
+  --p-neutral-800: #2A2A35;
+  --p-neutral-500: #6E6E7E;
+  --p-neutral-200: #E2E2E8;
+
+  /* Backgrounds */
+  --p-warm-50:     #FAF8F5;
+  --p-white:       #FFFFFF;
+
+  /* Utility */
+  --p-error:       #D94F4F;
+  --p-success:     #3D9A5C;
+  --p-overlay:     rgba(26, 26, 34, 0.5);
+
+  /* ─── Semantic — Light Mode (default) ──────────────────────── */
+  --bg-primary:       var(--p-warm-50);
+  --bg-secondary:     var(--p-white);
+  --surface-default:  var(--p-white);
+  --surface-overlay:  var(--p-overlay);
+
+  --brand-primary:    var(--p-amber-400);
+  --brand-secondary:  var(--p-teal-500);
+
+  --mood-positive:    var(--p-sage-400);
+  --mood-negative:    var(--p-coral-400);
+
+  --text-primary:     var(--p-neutral-950);
+  --text-muted:       var(--p-neutral-500);
+
+  --border:           var(--p-neutral-200);
+  --error:            var(--p-error);
+  --success:          var(--p-success);
+
+  /* ─── Typography ────────────────────────────────────────────── */
+  --font-sans:    'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-journal: 'Lora', Georgia, serif;
+
+  --text-display-size: 32px;
+  --text-display-lh:   1.2;
+  --text-display-fw:   700;
+
+  --text-title-size:   24px;
+  --text-title-lh:     1.3;
+  --text-title-fw:     600;
+
+  --text-body-size:    16px;
+  --text-body-lh:      1.6;
+  --text-body-fw:      400;
+
+  --text-caption-size: 13px;
+  --text-caption-lh:   1.4;
+  --text-caption-fw:   400;
+
+  --text-journal-size: 18px;
+  --text-journal-lh:   1.8;
+  --text-journal-fw:   400;
+
+  /* ─── Spacing ───────────────────────────────────────────────── */
+  --space-4:  4px;
+  --space-8:  8px;
+  --space-12: 12px;
+  --space-16: 16px;
+  --space-20: 20px;
+  --space-24: 24px;
+  --space-32: 32px;
+  --space-48: 48px;
+  --space-64: 64px;
+
+  --space-card-padding: 16px;
+  --space-card-radius:  16px;
+  --space-screen-edge:  24px;
+
+  /* ─── Elevation ─────────────────────────────────────────────── */
+  --shadow-card: 0 4px 16px rgba(0, 0, 0, 0.10);
+}
+
+/* ─── Semantic — Dark Mode ────────────────────────────────────── */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-primary:      var(--p-neutral-900);
+    --bg-secondary:    var(--p-neutral-800);
+    --surface-default: var(--p-neutral-800);
+
+    --brand-primary:   var(--p-amber-300);
+    --brand-secondary: var(--p-teal-400);
+
+    --text-primary:    var(--p-white);
+    --text-muted:      var(--p-neutral-200);
+
+    --border:          var(--p-neutral-800);
+  }
+}
+
+/* ─── Utility Classes ─────────────────────────────────────────── */
+
+/* Text styles */
+.text-display {
+  font-family: var(--font-sans);
+  font-size: var(--text-display-size);
+  line-height: var(--text-display-lh);
+  font-weight: var(--text-display-fw);
+}
+
+.text-title {
+  font-family: var(--font-sans);
+  font-size: var(--text-title-size);
+  line-height: var(--text-title-lh);
+  font-weight: var(--text-title-fw);
+}
+
+.text-body {
+  font-family: var(--font-sans);
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-lh);
+  font-weight: var(--text-body-fw);
+}
+
+.text-caption {
+  font-family: var(--font-sans);
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  font-weight: var(--text-caption-fw);
+}
+
+.text-journal {
+  font-family: var(--font-journal);
+  font-size: var(--text-journal-size);
+  line-height: var(--text-journal-lh);
+  font-weight: var(--text-journal-fw);
+}
