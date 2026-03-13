@@ -19,9 +19,8 @@
     "android": {
       "package": "com.reflect.app",
       "adaptiveIcon": {
-        "backgroundColor": "#FAF8F5",
+        "backgroundColor": "#EBE8E2",
         "foregroundImage": "./assets/android-icon-foreground.png",
-        "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
       "navigationBar": {
