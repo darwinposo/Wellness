@@ -70,6 +70,123 @@ npm install <package> --legacy-peer-deps
 
 ---
 
+## SelectionCard — established T01 M002/S02 (2026-03-13)
+Interactive option card with selection state. Used in goal, frequency, time screens — reuse in M003 mood check-in.
+
+```tsx
+<TouchableOpacity
+  onPress={() => setSelected(option.id)}
+  style={[
+    selected === option.id
+      ? { borderWidth: 2, borderColor: COLORS.brandPrimary }
+      : { ...SHADOWS.card }
+  ]}
+  className="rounded-xl p-4 bg-surface-primary mb-3"
+>
+  <Text>{option.label}</Text>
+</TouchableOpacity>
+```
+
+---
+
+## ScreenLayout — established T01 M002/S02 (2026-03-13)
+Standard onboarding screen layout pattern: content area fills available space, bottom area fixed.
+
+```tsx
+<SafeScreen>
+  <View className="flex-1 justify-between px-6 py-8">
+    {/* content — flex-1 to fill */}
+    <View className="flex-1">
+      {/* ... */}
+    </View>
+    {/* bottom fixed: progress dots + CTA */}
+    <View className="gap-6">
+      <ProgressDots current={1} total={7} />
+      <Button label="Lanjut" onPress={handleNext} disabled={!selected} />
+    </View>
+  </View>
+</SafeScreen>
+```
+
+---
+
+## Disabled CTA — established T01 M002/S02 (2026-03-13)
+Pass `disabled` prop to Button — Button handles opacity internally. Never manually style opacity.
+
+```tsx
+<Button label="Lanjut" onPress={handleNext} disabled={!selectedValue} />
+```
+
+---
+
+## Auth guard in root layout — established T03 M002/S02 (2026-03-13)
+Routing decisions (onboarding / login / tabs) live in `_layout.tsx` via Expo Router `<Redirect>`.
+Screens do not redirect themselves.
+
+```tsx
+// _layout.tsx
+if (loading) return <LoadingSpinner />;
+if (!isComplete) return <Redirect href="/onboarding" />;
+if (!session) return <Redirect href="/auth/login" />;
+return <Slot />;
+```
+
+---
+
+## Zustand + AsyncStorage persistence — established T01 M002/S02 (2026-03-13)
+Use `persist` middleware with `AsyncStorage` for any cross-session state.
+
+```tsx
+import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+export const useMyStore = create(
+  persist(
+    (set) => ({ /* state */ }),
+    { name: 'my-store', storage: createJSONStorage(() => AsyncStorage) }
+  )
+);
+```
+
+---
+
+## Supabase auth hook — established T03 M002/S02 (2026-03-13)
+Standard pattern for wiring Supabase auth to a Zustand store.
+
+```tsx
+export function useAuth() {
+  const { setSession, setLoading } = useAuthStore();
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      setSession(data.session);
+      setLoading(false);
+    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+}
+```
+
+---
+
+## Jest config for Expo SDK 55 — established T01 M002/S02 (2026-03-13)
+`expo/src/winter` must be mocked via `moduleNameMapper` (not `setupFiles`).
+Set `haste.defaultPlatform` to `'android'` for consistent resolution.
+
+```js
+// jest.config.js
+module.exports = {
+  preset: 'jest-expo',
+  moduleNameMapper: { '^expo/src/winter$': '<rootDir>/tests/__mocks__/expo-winter.js' },
+  haste: { defaultPlatform: 'android' },
+};
+```
+
+---
+
 ## COLORS from constants — established T02 M002/S01 (2026-03-12)
 Never hardcode hex values. Always import from `@/lib/constants`.
 

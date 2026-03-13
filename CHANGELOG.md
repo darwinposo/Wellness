@@ -2,11 +2,18 @@
 
 ## [Unreleased]
 ### In Progress
-- M002: App Foundation (S01 complete, S02 + S03 planned)
+- M002: App Foundation (S01 + S02 complete, S03 planned)
 
 ---
 
 ## [M002: App Foundation] - In Progress
+
+### [S02: Onboarding Flow] - 2026-03-13
+- 7-screen onboarding flow in Bahasa Indonesia — Value Prop → Goal → Frequency → Time → Plan Preview → AI Taste → Paywall
+- Zustand onboarding store + auth store with AsyncStorage persistence
+- Root auth guard (3-way routing: onboarding / login / tabs) using Expo Router `<Redirect>`
+- ProgressDots component + PricingCard (IDR pricing: Rp 299.000/tahun, Rp 39.000/bulan)
+- 24 tests across 5 test files — all passing
 
 ### [S01: Project Scaffold] - 2026-03-12
 - Expo SDK 55 app initialized with full dependency set

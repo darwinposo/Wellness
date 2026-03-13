@@ -1,8 +1,8 @@
 {
   "project": "Reflect",
-  "phase": "SUMMARIZE",
+  "phase": "PLAN",
   "milestone": "M002",
-  "slice": "S02",
+  "slice": "S03",
   "task": null,
   "iteration": 1,
   "lastActive": "2026-03-13",
@@ -36,6 +36,12 @@
       "to": "PLAN",
       "date": "2026-03-13",
       "action": "S01 UAT generated, moving to S02 Onboarding Flow"
+    },
+    {
+      "from": "UAT",
+      "to": "PLAN",
+      "date": "2026-03-13",
+      "action": "S02 UAT generated, moving to S03 Authentication"
     }
   ]
 }
