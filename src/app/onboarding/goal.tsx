@@ -2,9 +2,8 @@ import { useState } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
 import { SafeScreen } from '@/components/ui/SafeScreen';
-import { Button } from '@/components/ui/Button';
 import { ProgressDots } from '@/components/ui/ProgressDots';
-import { useOnboardingStore, Goal } from '@/store/onboarding';
+import { useOnboardingStore, Goal } from '@/store/onboarding'; // getState() used imperatively on Lanjut press
 import { COLORS, FONTS, SPACING, SHADOWS } from '@/lib/constants';
 
 interface GoalOption {
@@ -22,7 +21,6 @@ const GOAL_OPTIONS: GoalOption[] = [
 
 /** Onboarding Screen 2 — Goal selection */
 export default function OnboardingGoal() {
-  const setGoal = useOnboardingStore((s) => s.setGoal);
   const [selected, setSelected] = useState<Goal>(null);
 
   return (
@@ -103,13 +101,25 @@ export default function OnboardingGoal() {
         {/* Bottom: dots + CTA */}
         <View className="gap-6">
           <ProgressDots current={2} total={7} />
-          <Button
-            variant="primary"
-            size="lg"
-            label="Lanjut"
-            disabled={!selected}
-            onPress={() => { setGoal(selected); router.push('/onboarding/frequency'); }}
-          />
+          <View style={{ opacity: selected ? 1 : 0.4 }}>
+            <TouchableOpacity
+              activeOpacity={0.8}
+              onPress={() => {
+                if (!selected) return;
+                useOnboardingStore.getState().setGoal(selected);
+                router.push('/onboarding/frequency');
+              }}
+              style={{
+                height: 52,
+                borderRadius: 12,
+                backgroundColor: COLORS.brandPrimary,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Text style={{ fontFamily: FONTS.sansSemi, color: '#fff', fontSize: 16 }}>Lanjut</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
     </SafeScreen>

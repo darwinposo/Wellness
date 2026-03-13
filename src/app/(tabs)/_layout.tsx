@@ -1,7 +1,29 @@
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { Text } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS } from '@/lib/constants';
+
+function TabLabel({ title, color }: { title: string; color: string }) {
+  return (
+    <Text
+      numberOfLines={1}
+      adjustsFontSizeToFit
+      minimumFontScale={0.7}
+      allowFontScaling={false}
+      style={{
+        fontFamily: 'PlusJakartaSans_600SemiBold',
+        fontSize: 10,
+        color,
+        includeFontPadding: false,
+        textAlign: 'center',
+        width: '100%',
+      }}
+    >
+      {title}
+    </Text>
+  );
+}
 
 type IoniconsName = React.ComponentProps<typeof Ionicons>['name'];
 
@@ -27,14 +49,15 @@ export default function TabLayout() {
           backgroundColor: COLORS.surface,
           borderTopColor: COLORS.border,
           borderTopWidth: 1,
-          height: 72 + insets.bottom,
-          paddingBottom: insets.bottom,
-          paddingTop: 8,
+          height: 64 + insets.bottom,
+          paddingBottom: insets.bottom + 6,
+          paddingTop: 10,
         },
-        tabBarLabelStyle: {
-          fontSize: 11,
-          fontFamily: 'PlusJakartaSans_600SemiBold',
-          marginTop: 2,
+        tabBarIconStyle: {
+          marginBottom: 0,
+        },
+        tabBarItemStyle: {
+          paddingHorizontal: 2,
         },
       }}
     >
@@ -42,36 +65,32 @@ export default function TabLayout() {
         name="index"
         options={{
           title: 'Hari Ini',
-          tabBarIcon: ({ color, size }) => (
-            <TabIcon name="sunny-outline" color={color} size={size} />
-          ),
+          tabBarIcon: ({ color }) => <TabIcon name="sunny-outline" color={color} size={20} />,
+          tabBarLabel: ({ color }) => <TabLabel title="Hari Ini" color={color} />,
         }}
       />
       <Tabs.Screen
         name="journal"
         options={{
           title: 'Jurnal',
-          tabBarIcon: ({ color, size }) => (
-            <TabIcon name="book-outline" color={color} size={size} />
-          ),
+          tabBarIcon: ({ color }) => <TabIcon name="book-outline" color={color} size={20} />,
+          tabBarLabel: ({ color }) => <TabLabel title="Jurnal" color={color} />,
         }}
       />
       <Tabs.Screen
         name="insights"
         options={{
           title: 'Wawasan',
-          tabBarIcon: ({ color, size }) => (
-            <TabIcon name="bar-chart-outline" color={color} size={size} />
-          ),
+          tabBarIcon: ({ color }) => <TabIcon name="bar-chart-outline" color={color} size={20} />,
+          tabBarLabel: ({ color }) => <TabLabel title="Wawasan" color={color} />,
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
           title: 'Profil',
-          tabBarIcon: ({ color, size }) => (
-            <TabIcon name="person-outline" color={color} size={size} />
-          ),
+          tabBarIcon: ({ color }) => <TabIcon name="person-outline" color={color} size={20} />,
+          tabBarLabel: ({ color }) => <TabLabel title="Profil" color={color} />,
         }}
       />
     </Tabs>

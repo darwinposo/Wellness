@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
 import { SafeScreen } from '@/components/ui/SafeScreen';
-import { Button } from '@/components/ui/Button';
 import { ProgressDots } from '@/components/ui/ProgressDots';
 import { useOnboardingStore, Frequency } from '@/store/onboarding';
 import { COLORS, FONTS, SPACING, SHADOWS } from '@/lib/constants';
@@ -21,7 +20,6 @@ const FREQ_OPTIONS: FreqOption[] = [
 
 /** Onboarding Screen 3 — Frequency selection */
 export default function OnboardingFrequency() {
-  const setFrequency = useOnboardingStore((s) => s.setFrequency);
   const [selected, setSelected] = useState<Frequency>(null);
 
   return (
@@ -90,13 +88,25 @@ export default function OnboardingFrequency() {
 
         <View className="gap-6">
           <ProgressDots current={3} total={7} />
-          <Button
-            variant="primary"
-            size="lg"
-            label="Lanjut"
-            disabled={!selected}
-            onPress={() => { setFrequency(selected); router.push('/onboarding/time'); }}
-          />
+          <View style={{ opacity: selected ? 1 : 0.4 }}>
+            <TouchableOpacity
+              activeOpacity={0.8}
+              onPress={() => {
+                if (!selected) return;
+                useOnboardingStore.getState().setFrequency(selected);
+                router.push('/onboarding/time');
+              }}
+              style={{
+                height: 52,
+                borderRadius: 12,
+                backgroundColor: COLORS.brandPrimary,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Text style={{ fontFamily: FONTS.sansSemi, color: '#fff', fontSize: 16 }}>Lanjut</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
     </SafeScreen>

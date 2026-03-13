@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
 import { SafeScreen } from '@/components/ui/SafeScreen';
-import { Button } from '@/components/ui/Button';
 import { ProgressDots } from '@/components/ui/ProgressDots';
 import { useOnboardingStore, TimePreference } from '@/store/onboarding';
 import { COLORS, FONTS, SPACING, SHADOWS } from '@/lib/constants';
@@ -23,7 +22,6 @@ const TIME_OPTIONS: TimeOption[] = [
 
 /** Onboarding Screen 4 — Time preference */
 export default function OnboardingTime() {
-  const setTimePreference = useOnboardingStore((s) => s.setTimePreference);
   const [selected, setSelected] = useState<TimePreference>(null);
 
   return (
@@ -98,13 +96,25 @@ export default function OnboardingTime() {
 
         <View className="gap-6">
           <ProgressDots current={4} total={7} />
-          <Button
-            variant="primary"
-            size="lg"
-            label="Lanjut"
-            disabled={!selected}
-            onPress={() => { setTimePreference(selected); router.push('/onboarding/preview' as any); }}
-          />
+          <View style={{ opacity: selected ? 1 : 0.4 }}>
+            <TouchableOpacity
+              activeOpacity={0.8}
+              onPress={() => {
+                if (!selected) return;
+                useOnboardingStore.getState().setTimePreference(selected);
+                router.push('/onboarding/preview' as any);
+              }}
+              style={{
+                height: 52,
+                borderRadius: 12,
+                backgroundColor: COLORS.brandPrimary,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Text style={{ fontFamily: FONTS.sansSemi, color: '#fff', fontSize: 16 }}>Lanjut</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
     </SafeScreen>
