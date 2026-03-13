@@ -1,4 +1,4 @@
-import { TouchableOpacity, Text, ActivityIndicator, ViewStyle, TextStyle } from 'react-native';
+import { TouchableOpacity, Text, ActivityIndicator, ViewStyle, StyleSheet } from 'react-native';
 
 type ButtonVariant = 'primary' | 'secondary' | 'ghost';
 type ButtonSize = 'sm' | 'md' | 'lg';
@@ -56,13 +56,12 @@ export function Button({
       onPress={onPress}
       disabled={isDisabled}
       activeOpacity={0.85}
-      style={style}
+      style={[style, { opacity: isDisabled ? 0.4 : 1 }]}
       className={[
         'flex-row items-center justify-center',
         containerClass[variant],
         sizeClass[size],
         fullWidth ? 'w-full' : 'self-start',
-        isDisabled ? 'opacity-40' : 'opacity-100',
       ].join(' ')}
     >
       {loading ? (
@@ -72,12 +71,13 @@ export function Button({
         />
       ) : (
         <Text
-          className={[
-            'font-semibold',
-            labelClass[variant],
-            labelSizeClass[size],
-          ].join(' ')}
-          style={{ fontFamily: 'PlusJakartaSans_600SemiBold' }}
+          style={{
+            fontFamily: 'PlusJakartaSans_600SemiBold',
+            textAlign: 'center',
+            textAlignVertical: 'center',
+            color: variant === 'primary' ? '#FFFFFF' : variant === 'secondary' ? '#D4724A' : '#1A1A22',
+            fontSize: size === 'sm' ? 14 : 16,
+          }}
         >
           {label}
         </Text>

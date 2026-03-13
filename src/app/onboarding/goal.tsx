@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
 import { SafeScreen } from '@/components/ui/SafeScreen';
@@ -21,7 +22,8 @@ const GOAL_OPTIONS: GoalOption[] = [
 
 /** Onboarding Screen 2 — Goal selection */
 export default function OnboardingGoal() {
-  const { goal, setGoal } = useOnboardingStore();
+  const setGoal = useOnboardingStore((s) => s.setGoal);
+  const [selected, setSelected] = useState<Goal>(null);
 
   return (
     <SafeScreen>
@@ -43,11 +45,11 @@ export default function OnboardingGoal() {
           {/* Goal cards */}
           <View className="gap-3">
             {GOAL_OPTIONS.map((opt) => {
-              const isSelected = goal === opt.value;
+              const isSelected = selected === opt.value;
               return (
                 <TouchableOpacity
                   key={opt.value}
-                  onPress={() => setGoal(opt.value)}
+                  onPress={() => setSelected(opt.value)}
                   activeOpacity={0.7}
                   style={[
                     {
@@ -105,8 +107,8 @@ export default function OnboardingGoal() {
             variant="primary"
             size="lg"
             label="Lanjut"
-            disabled={!goal}
-            onPress={() => router.push('/onboarding/frequency')}
+            disabled={!selected}
+            onPress={() => { setGoal(selected); router.push('/onboarding/frequency'); }}
           />
         </View>
       </View>

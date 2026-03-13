@@ -1,7 +1,7 @@
 import 'react-native-url-polyfill/auto'; // LANDMINE 3: must be first import
 import '../../global.css'; // NativeWind global styles
 import { useEffect } from 'react';
-import { Slot, Redirect } from 'expo-router';
+import { Slot, useSegments, useRouter } from 'expo-router';
 import { ActivityIndicator, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
@@ -15,6 +15,7 @@ import { Lora_400Regular } from '@expo-google-fonts/lora';
 import * as SplashScreen from 'expo-splash-screen';
 import { useOnboardingStore } from '@/store/onboarding';
 import { useAuth } from '@/hooks/useAuth';
+import { useAuthStore } from '@/store/auth';
 import { COLORS } from '@/lib/constants';
 
 SplashScreen.preventAutoHideAsync();
@@ -28,13 +29,30 @@ export default function RootLayout() {
   });
 
   const { isComplete } = useOnboardingStore();
-  const { session, loading: authLoading } = useAuth();
+  useAuth(); // syncs Supabase session into useAuthStore
+  const { session, loading: authLoading } = useAuthStore();
+  const segments = useSegments();
+  const router = useRouter();
 
   useEffect(() => {
     if (fontsLoaded || fontError) {
       SplashScreen.hideAsync().catch(() => {});
     }
   }, [fontsLoaded, fontError]);
+
+  useEffect(() => {
+    if (authLoading) return;
+
+    const inOnboarding = segments[0] === 'onboarding';
+    const inAuth = segments[0] === 'auth';
+
+    // Only navigate once, when not already in the right section
+    if (!isComplete && !inOnboarding) {
+      router.replace('/onboarding');
+    } else if (isComplete && !session && !inAuth) {
+      router.replace('/auth/login' as any);
+    }
+  }, [isComplete, session, authLoading]);
 
   // Show spinner while Supabase resolves the existing session —
   // avoids flashing onboarding/login for returning users
@@ -55,8 +73,6 @@ export default function RootLayout() {
           1. No onboarding completed → onboarding flow
           2. Not authenticated → login
           3. Authenticated → main tabs  */}
-      {!isComplete && <Redirect href="/onboarding" />}
-      {isComplete && !session && <Redirect href="/auth/login" />}
       <Slot />
     </SafeAreaProvider>
   );

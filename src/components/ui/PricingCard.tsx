@@ -14,7 +14,7 @@ interface PricingCardProps {
  * Annual plan shows "PALING HEMAT" badge and brand-primary border.
  */
 export function PricingCard({ price, sublabel, isRecommended, isSelected, onPress }: PricingCardProps) {
-  const highlighted = isRecommended || isSelected;
+  const highlighted = isSelected;
 
   return (
     <TouchableOpacity

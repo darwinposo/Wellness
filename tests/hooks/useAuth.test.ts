@@ -16,6 +16,7 @@ jest.mock('@/lib/supabase', () => ({
 }));
 
 import { useAuth } from '@/hooks/useAuth';
+import { useAuthStore } from '@/store/auth';
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -23,30 +24,31 @@ beforeEach(() => {
   mockOnAuthStateChange.mockReturnValue({
     data: { subscription: { unsubscribe: mockUnsubscribe } },
   });
+  // Reset store to initial state
+  useAuthStore.setState({ session: null, loading: true, isAuthenticated: false });
 });
 
 describe('useAuth', () => {
-  it('returns loading true before getSession resolves', () => {
-    // Don't await — check synchronous initial state
-    const { result } = renderHook(() => useAuth());
-    expect(result.current.loading).toBe(true);
+  it('store starts with loading true before getSession resolves', () => {
+    renderHook(() => useAuth());
+    expect(useAuthStore.getState().loading).toBe(true);
   });
 
-  it('returns session null and loading false after getSession resolves with no session', async () => {
-    const { result } = renderHook(() => useAuth());
+  it('syncs null session and loading false into store after getSession resolves', async () => {
+    renderHook(() => useAuth());
     await act(async () => {});
-    expect(result.current.session).toBeNull();
-    expect(result.current.loading).toBe(false);
+    expect(useAuthStore.getState().session).toBeNull();
+    expect(useAuthStore.getState().loading).toBe(false);
   });
 
-  it('sets session when getSession returns a session', async () => {
+  it('syncs session into store when getSession returns a session', async () => {
     const fakeSession = { user: { id: 'user-1' }, access_token: 'token' } as any;
     mockGetSession.mockResolvedValueOnce({ data: { session: fakeSession } });
 
-    const { result } = renderHook(() => useAuth());
+    renderHook(() => useAuth());
     await act(async () => {});
-    expect(result.current.session).toEqual(fakeSession);
-    expect(result.current.loading).toBe(false);
+    expect(useAuthStore.getState().session).toEqual(fakeSession);
+    expect(useAuthStore.getState().loading).toBe(false);
   });
 
   it('subscribes to auth state changes on mount', async () => {

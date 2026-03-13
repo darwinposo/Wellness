@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
 import { SafeScreen } from '@/components/ui/SafeScreen';
@@ -20,7 +21,8 @@ const FREQ_OPTIONS: FreqOption[] = [
 
 /** Onboarding Screen 3 — Frequency selection */
 export default function OnboardingFrequency() {
-  const { frequency, setFrequency } = useOnboardingStore();
+  const setFrequency = useOnboardingStore((s) => s.setFrequency);
+  const [selected, setSelected] = useState<Frequency>(null);
 
   return (
     <SafeScreen>
@@ -37,11 +39,11 @@ export default function OnboardingFrequency() {
 
           <View className="gap-3">
             {FREQ_OPTIONS.map((opt) => {
-              const isSelected = frequency === opt.value;
+              const isSelected = selected === opt.value;
               return (
                 <TouchableOpacity
                   key={opt.value}
-                  onPress={() => setFrequency(opt.value)}
+                  onPress={() => setSelected(opt.value)}
                   activeOpacity={0.7}
                   style={[
                     {
@@ -92,8 +94,8 @@ export default function OnboardingFrequency() {
             variant="primary"
             size="lg"
             label="Lanjut"
-            disabled={!frequency}
-            onPress={() => router.push('/onboarding/time')}
+            disabled={!selected}
+            onPress={() => { setFrequency(selected); router.push('/onboarding/time'); }}
           />
         </View>
       </View>

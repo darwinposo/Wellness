@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
 import { SafeScreen } from '@/components/ui/SafeScreen';
@@ -22,7 +23,8 @@ const TIME_OPTIONS: TimeOption[] = [
 
 /** Onboarding Screen 4 — Time preference */
 export default function OnboardingTime() {
-  const { timePreference, setTimePreference } = useOnboardingStore();
+  const setTimePreference = useOnboardingStore((s) => s.setTimePreference);
+  const [selected, setSelected] = useState<TimePreference>(null);
 
   return (
     <SafeScreen>
@@ -39,11 +41,11 @@ export default function OnboardingTime() {
 
           <View className="gap-3">
             {TIME_OPTIONS.map((opt) => {
-              const isSelected = timePreference === opt.value;
+              const isSelected = selected === opt.value;
               return (
                 <TouchableOpacity
                   key={opt.value}
-                  onPress={() => setTimePreference(opt.value)}
+                  onPress={() => setSelected(opt.value)}
                   activeOpacity={0.7}
                   style={[
                     {
@@ -100,8 +102,8 @@ export default function OnboardingTime() {
             variant="primary"
             size="lg"
             label="Lanjut"
-            disabled={!timePreference}
-            onPress={() => router.push('/onboarding/preview' as any)}
+            disabled={!selected}
+            onPress={() => { setTimePreference(selected); router.push('/onboarding/preview' as any); }}
           />
         </View>
       </View>
