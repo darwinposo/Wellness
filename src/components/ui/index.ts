@@ -2,3 +2,4 @@ export { Button } from './Button';
 export { Card } from './Card';
 export { SafeScreen } from './SafeScreen';
 export { ProgressDots } from './ProgressDots';
+export { PricingCard } from './PricingCard';
