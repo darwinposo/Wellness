@@ -1,4 +1,5 @@
-import { View, Text } from 'react-native';
+import { useEffect } from 'react';
+import { View, Text, BackHandler } from 'react-native';
 import { router } from 'expo-router';
 import { SafeScreen } from '@/components/ui/SafeScreen';
 import { Button } from '@/components/ui/Button';
@@ -7,6 +8,12 @@ import { COLORS, FONTS } from '@/lib/constants';
 
 /** Onboarding Screen 1 — Value Prop */
 export default function OnboardingValueProp() {
+  // Prevent Android hardware back from exiting onboarding on the first screen
+  useEffect(() => {
+    const sub = BackHandler.addEventListener('hardwareBackPress', () => true);
+    return () => sub.remove();
+  }, []);
+
   return (
     <SafeScreen>
       <View className="flex-1 justify-between px-6 py-8">

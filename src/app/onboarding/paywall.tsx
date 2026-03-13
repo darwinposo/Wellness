@@ -5,12 +5,19 @@ import { SafeScreen } from '@/components/ui/SafeScreen';
 import { Button } from '@/components/ui/Button';
 import { ProgressDots } from '@/components/ui/ProgressDots';
 import { PricingCard } from '@/components/ui/PricingCard';
+import { useOnboardingStore } from '@/store/onboarding';
 import { COLORS, FONTS } from '@/lib/constants';
 
 /** Onboarding Screen 7 — Paywall (UI only — RevenueCat wired in M004) */
 export default function OnboardingPaywall() {
-  // Annual pre-selected as recommended
   const [selectedPlan, setSelectedPlan] = useState<'annual' | 'monthly'>('annual');
+  const { complete } = useOnboardingStore();
+
+  /** Mark onboarding done THEN navigate — so root layout routes to tabs after auth */
+  function handleContinue() {
+    complete();
+    router.push('/auth/login' as any);
+  }
 
   return (
     <SafeScreen>
@@ -68,13 +75,13 @@ export default function OnboardingPaywall() {
               variant="primary"
               size="lg"
               label="Coba Premium Gratis 7 Hari"
-              onPress={() => router.push('/auth/login' as any)}
+              onPress={handleContinue}
             />
             <Button
               variant="ghost"
               size="lg"
               label="Mulai Gratis (3 sesi/minggu)"
-              onPress={() => router.push('/auth/login' as any)}
+              onPress={handleContinue}
             />
           </View>
         </View>
