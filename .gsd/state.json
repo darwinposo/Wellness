@@ -1,11 +1,11 @@
 {
   "project": "Reflect",
-  "phase": "TASK",
-  "milestone": "M001",
-  "slice": "S01",
-  "task": "T01",
+  "phase": "PLAN",
+  "milestone": "M002",
+  "slice": "S02",
+  "task": null,
   "iteration": 1,
-  "lastActive": "2026-03-12",
+  "lastActive": "2026-03-13",
   "history": [
     {
       "from": "DISCUSS",
@@ -24,6 +24,18 @@
       "to": "TASK",
       "date": "2026-03-12",
       "action": "plan_complete"
+    },
+    {
+      "from": "M001-TASK",
+      "to": "M002-PLAN",
+      "date": "2026-03-12",
+      "reason": "Skipping Figma tasks — design captured in HTML prototypes + token files. Moving to app code."
+    },
+    {
+      "from": "UAT",
+      "to": "PLAN",
+      "date": "2026-03-13",
+      "action": "S01 UAT generated, moving to S02 Onboarding Flow"
     }
   ]
 }
