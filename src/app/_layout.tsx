@@ -30,7 +30,7 @@ export default function RootLayout() {
 
   const { isComplete } = useOnboardingStore();
   useAuth(); // syncs Supabase session into useAuthStore
-  const { session, loading: authLoading } = useAuthStore();
+  const { session, loading: authLoading, isRecoverySession } = useAuthStore();
   const segments = useSegments();
   const router = useRouter();
 
@@ -45,14 +45,29 @@ export default function RootLayout() {
 
     const inOnboarding = segments[0] === 'onboarding';
     const inAuth = segments[0] === 'auth';
+    const inTabs = segments[0] === '(tabs)';
+    const inCallback = segments[0] === 'auth' && segments[1] === 'callback';
+    const inResetPassword = segments[0] === 'auth' && segments[1] === 'reset-password';
 
-    // Only navigate once, when not already in the right section
-    if (!isComplete && !inOnboarding) {
-      router.replace('/onboarding');
-    } else if (isComplete && !session && !inAuth) {
-      router.replace('/auth/login' as any);
+    // Recovery sessions are restricted — they may ONLY access reset-password.
+    // Prevent a recovery link from granting full app access.
+    if (session && isRecoverySession && !inResetPassword) {
+      router.replace('/auth/reset-password' as any);
+      return;
     }
-  }, [isComplete, session, authLoading]);
+
+    // Auth always comes first — unauthenticated users go to login before anything else
+    if (!session && !inAuth) {
+      router.replace('/auth/login' as any);
+    } else if (session && (inCallback || inResetPassword)) {
+      // Let callback.tsx / reset-password.tsx handle navigation — don't interfere
+      return;
+    } else if (session && !isComplete && !inOnboarding) {
+      router.replace('/onboarding');
+    } else if (session && isComplete && !inTabs) {
+      router.replace('/(tabs)' as any);
+    }
+  }, [isComplete, session, authLoading, isRecoverySession, segments, router]);
 
   // Show spinner while Supabase resolves the existing session —
   // avoids flashing onboarding/login for returning users
@@ -70,9 +85,9 @@ export default function RootLayout() {
     <SafeAreaProvider>
       <StatusBar style="dark" />
       {/* Routing priority:
-          1. No onboarding completed → onboarding flow
-          2. Not authenticated → login
-          3. Authenticated → main tabs  */}
+          1. Not authenticated → login (always first)
+          2. Authenticated + onboarding incomplete → onboarding
+          3. Authenticated + onboarding complete → main tabs  */}
       <Slot />
     </SafeAreaProvider>
   );

@@ -5,8 +5,12 @@ interface AuthState {
   session: Session | null;
   loading: boolean;
   isAuthenticated: boolean;
+  // True ONLY when the session was established via a PASSWORD_RECOVERY event.
+  // Guards the reset-password screen — cleared after use or on signOut.
+  isRecoverySession: boolean;
   setSession: (session: Session | null) => void;
   clearSession: () => void;
+  setRecoverySession: (value: boolean) => void;
 }
 
 /**
@@ -17,10 +21,14 @@ export const useAuthStore = create<AuthState>((set) => ({
   session: null,
   loading: true,
   isAuthenticated: false,
+  isRecoverySession: false,
 
   setSession: (session) =>
     set({ session, loading: false, isAuthenticated: session !== null }),
 
   clearSession: () =>
-    set({ session: null, loading: false, isAuthenticated: false }),
+    set({ session: null, loading: false, isAuthenticated: false, isRecoverySession: false }),
+
+  setRecoverySession: (value) =>
+    set({ isRecoverySession: value }),
 }));
