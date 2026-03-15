@@ -1,8 +1,8 @@
 {
   "project": "Reflect",
-  "phase": "UAT_PENDING",
+  "phase": "SUMMARIZE",
   "milestone": "M002",
-  "slice": "S03",
+  "slice": null,
   "task": null,
   "iteration": 2,
   "lastActive": "2026-03-15",
@@ -17,6 +17,7 @@
     { "from": "T01", "to": "T02", "date": "2026-03-14", "action": "T01 agent artifacts done" },
     { "from": "T02", "to": "T03", "date": "2026-03-14", "action": "T02 complete — login screen done" },
     { "from": "T03", "to": "VERIFY", "date": "2026-03-14", "action": "All 3 tasks complete, 41 tests passing" },
-    { "from": "VERIFY", "to": "TASK", "date": "2026-03-14", "action": "Device UAT revealed 6 issues — adding T04+T05 fix tasks" }
+    { "from": "VERIFY", "to": "TASK", "date": "2026-03-14", "action": "Device UAT revealed 6 issues — adding T04+T05 fix tasks" },
+    { "from": "UAT_PENDING", "to": "SUMMARIZE", "date": "2026-03-15", "action": "M002/S03 UAT passed — milestone complete" }
   ]
 }
