@@ -1,6 +1,6 @@
 # Changelog — M002: App Foundation
 
-## [M002] - In Progress
+## [M002] - 2026-03-15
 
 ### [S01: Project Scaffold] - 2026-03-12
 #### Added
@@ -23,4 +23,26 @@
 - `jest.config.js` — stable Jest config for Expo SDK 55 (winter mock, android platform default)
 - 24 tests: 5 test files, all passing
 
-### [S03: Authentication] - Planned
+### [S03: Authentication] - 2026-03-15
+#### Added
+- Google OAuth login via expo-web-browser + Supabase PKCE code exchange
+- Email/password registration with 4-rule strength validation + confirm password field
+- Email verification gate — unverified logins show clear Indonesian error
+- Password reset via secure deep link (`reflect://auth/callback?type=recovery&code=xxx`)
+- `/auth/reset-password` screen with 10-minute auto-expiry + server-side session validation
+- Session revocation on password change (all other devices signed out)
+- Auth-first routing: unauthenticated users always see login before onboarding
+- 7 branded Supabase email templates in Bahasa Indonesia (reset, signup, invite, magic link, etc.)
+- Supabase env vars embedded in all EAS build profiles (development/preview/production)
+- 100 tests across 13 test suites (up from 24)
+- `src/app/auth/callback.tsx` — OAuth + email deep link handler with PKCE + hash-fragment fallback
+- `src/app/auth/reset-password.tsx` — secure password reset screen
+- `src/lib/auth-utils.ts` — password strength validator + error message mapper
+- `src/lib/auth.ts` — signInWithGoogle, signUpWithEmail, signInWithEmail, sendPasswordReset, signOut, ensureProfile
+
+#### Fixed
+- [S03-v2] Password reset deep link auto-logged in instead of showing reset screen
+  (PKCE strips type — fixed by embedding `?type=recovery` in redirectTo)
+- [S03-v2] Toggle link "Masuk" clipped at right edge (nested Text pattern)
+- [S03-v2] Strength indicator labels wrapping (2×2 compact grid)
+- [S03-v2] Password reset success alert dismissed by premature signOut
